@@ -96,7 +96,7 @@ export default function Home() {
                     </div>
                     <div>
                         <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
-                        <p className="text-gray-300">Email: sa07424@st.habib.edu.pk</p>
+                        <p className="text-gray-300">Email: info@donorplus.com</p>
                         <p className="text-gray-300">Phone: (123) 456-7890</p>
                     </div>
                 </div>
