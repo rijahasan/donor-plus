@@ -46,7 +46,15 @@ export default function LoginPage() {
                         </form>
                     </CardContent>
                     <CardFooter className="flex flex-col">
-                        <Button className="w-full bg-red-600 hover:bg-red-700 mb-4">Login</Button>
+                        <div className="flex justify-center gap-4">
+                            <Link href="/dashboard">
+                                <Button size="lg" variant="outline" className="bg-white text-red-600 hover:bg-red-700 shadow-lg">Bypass?</Button>
+                            </Link>
+                            {/* <Link href="/register?type=receiver">
+                                <Button size="lg" variant="outline" className="bg-white text-red-600 hover:bg-red-700 shadow-lg">Need Blood?</Button>
+                            </Link> */}
+                        </div>
+
                         <p className="text-sm text-gray-500">
                             Don't have an account?{" "}
                             <Link href="/register" className="text-red-600 hover:underline">
