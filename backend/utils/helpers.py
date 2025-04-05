@@ -1,5 +1,7 @@
 from datetime import datetime
 import re
+import os
+import requests
 
 def format_date(date_str):
     """Format date string to datetime object."""
@@ -30,3 +32,21 @@ def sanitize_input(text):
     clean_text = re.sub(r'[^\w\s\.,;:!?()-]', '', clean_text)
     
     return clean_text
+def get_distance_between(origin, destination):
+    lat1, lng1 = origin
+    lat2, lng2 = destination
+    api_key = os.getenv('GOOGLE_API_KEY')
+
+    url = (
+        f"https://maps.googleapis.com/maps/api/distancematrix/json?"
+        f"origins={lat1},{lng1}&destinations={lat2},{lng2}&key={api_key}"
+    )
+
+    try:
+        response = requests.get(url)
+        result = response.json()
+        distance_meters = result['rows'][0]['elements'][0]['distance']['value']
+        return distance_meters / 1000  # Convert to kilometers
+    except Exception as e:
+        print("Google API error:", e)
+        return float('inf')
