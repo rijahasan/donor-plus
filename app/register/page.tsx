@@ -11,12 +11,17 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Droplet, ArrowLeft } from "lucide-react"
+import { useRouter } from "next/navigation"
+
 
 export default function RegisterPage() {
     const searchParams = useSearchParams()
     const defaultType = searchParams.get("type") || "donor"
     const [userType, setUserType] = useState(defaultType)
+    const router = useRouter()
 
+    const handleCreateAccount = () => {
+      router.push("/receiver") }
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <header className="bg-white border-b py-3 px-4">
@@ -128,7 +133,13 @@ export default function RegisterPage() {
                         </Tabs>
                     </CardContent>
                     <CardFooter>
-                        <Button className="w-full bg-red-600 hover:bg-red-700">Create Account</Button>
+                        {/* <Button className="w-full bg-red-600 hover:bg-red-700">Create Account</Button> */}
+                        <Button
+                        className="w-full bg-red-600 hover:bg-red-700"
+                        onClick={handleCreateAccount}
+                    >
+                        Create Account
+                    </Button>
                     </CardFooter>
                     <div className="text-center pb-6">
                         <p className="text-sm text-gray-500">
