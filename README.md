@@ -16,3 +16,4 @@ Then, run the backend server:
 python app.py
 ```
 
+This will enable all the API calls to MongoDB Atlas used for authentication and database storage.
