@@ -1,9 +1,19 @@
 "use client"
 import { useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
 import { ArrowLeft, Droplet } from "lucide-react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+
+interface Donor {
+  id: number;
+  name: string;
+  bloodType: string;
+  location: string;
+  distance: string;
+  available: boolean;
+}
 
 // Helper function to determine blood type compatibility
 const getCompatibleDonorTypes = (receiverBloodType: string): string[] => {
@@ -34,23 +44,49 @@ export default function SearchResultsPage() {
   const searchParams = useSearchParams()
 
   // Get blood type from search parameters
-  // const receiverBloodType = searchParams.get("bloodType") || ""
-  const receiverBloodType = decodeURIComponent(searchParams?.get("bloodType") || "")
+  const [donors, setDonors] = useState<Donor[]>([])  // State to hold donor data from DB
+  const [loading, setLoading] = useState(true)
+  const receiverBloodType = searchParams?.get("bloodType") || ""
+  
+  // const receiverBloodType = decodeURIComponent(searchParams?.get("bloodType") || "")
+  console.log("Raw Blood Type:", receiverBloodType);  // Should log 'O+' correctly
+
+  useEffect(() => {
+    if (!receiverBloodType) return
+
+    const fetchDonors = async () => {
+      try {
+        const encodedBloodType = encodeURIComponent(receiverBloodType);  // Encoding the blood type before passing it to the API
+        console.log("Encoded Blood Type:", encodedBloodType);  // Check if it logs 'O%2B'
+
+        const res = await fetch(`/api/donors?bloodType=${encodedBloodType}`);  // Pass the encoded value in the query string
+        const data = await res.json();
+        setDonors(data)
+      } catch (error) {
+        console.error("Error fetching donors:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDonors()
+  }, [receiverBloodType])
 
   // Get compatible donor blood types
   const compatibleDonorTypes = getCompatibleDonorTypes(receiverBloodType)
+  console.log("Compatible Donor Types:", compatibleDonorTypes);
 
-  // Mock data for demonstration
-  const donors = [
-    { id: 1, name: "John Doe", bloodType: "O-", location: "New York", distance: "2.5 miles", available: true },
-    { id: 2, name: "Jane Smith", bloodType: "O+", location: "Boston", distance: "5 miles", available: true },
-    { id: 3, name: "Robert Johnson", bloodType: "B+", location: "Chicago", distance: "3.2 miles", available: false },
-    { id: 4, name: "Emily Davis", bloodType: "AB+", location: "San Francisco", distance: "1.8 miles", available: true },
-    { id: 5, name: "Michael Wilson", bloodType: "A-", location: "Los Angeles", distance: "4.7 miles", available: true },
-    { id: 6, name: "Sarah Brown", bloodType: "O+", location: "New York", distance: "3.1 miles", available: false },
-    { id: 7, name: "David Miller", bloodType: "A+", location: "Chicago", distance: "2.9 miles", available: true },
-    { id: 8, name: "Lisa Taylor", bloodType: "B-", location: "Boston", distance: "6.2 miles", available: true },
-  ]
+  // // Mock data for demonstration
+  // const donors = [
+  //   { id: 1, name: "John Doe", bloodType: "O-", location: "New York", distance: "2.5 miles", available: true },
+  //   { id: 2, name: "Jane Smith", bloodType: "O+", location: "Boston", distance: "5 miles", available: true },
+  //   { id: 3, name: "Robert Johnson", bloodType: "B+", location: "Chicago", distance: "3.2 miles", available: false },
+  //   { id: 4, name: "Emily Davis", bloodType: "AB+", location: "San Francisco", distance: "1.8 miles", available: true },
+  //   { id: 5, name: "Michael Wilson", bloodType: "A-", location: "Los Angeles", distance: "4.7 miles", available: true },
+  //   { id: 6, name: "Sarah Brown", bloodType: "O+", location: "New York", distance: "3.1 miles", available: false },
+  //   { id: 7, name: "David Miller", bloodType: "A+", location: "Chicago", distance: "2.9 miles", available: true },
+  //   { id: 8, name: "Lisa Taylor", bloodType: "B-", location: "Boston", distance: "6.2 miles", available: true },
+  // ]
 
   // Filter donors based on blood type compatibility
   const compatibleDonors = donors.filter((donor) => compatibleDonorTypes.includes(donor.bloodType))

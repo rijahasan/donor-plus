@@ -13,15 +13,154 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Droplet, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 
-
 export default function RegisterPage() {
     const searchParams = useSearchParams()
     const defaultType = searchParams.get("type") || "donor"
     const [userType, setUserType] = useState(defaultType)
     const router = useRouter()
 
-    const handleCreateAccount = () => {
-      router.push("/receiver") }
+    // State for form data and errors
+    const [formData, setFormData] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        phone: "",
+        bloodType: "",
+        available: "no",
+        urgency: "normal",
+    })
+
+    const [errors, setErrors] = useState({
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        phone: "",
+        bloodType: "",
+    })
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData({
+            ...formData,
+            [e.target.id]: e.target.value,
+        })
+    }
+
+    const validateForm = () => {
+        let isValid = true
+        const newErrors = { ...errors }
+
+        // Validate first name
+        if (!formData.firstName) {
+            newErrors.firstName = "First Name is required"
+            isValid = false
+        } else {
+            newErrors.firstName = ""
+        }
+
+        // Validate last name
+        if (!formData.lastName) {
+            newErrors.lastName = "Last Name is required"
+            isValid = false
+        } else {
+            newErrors.lastName = ""
+        }
+
+        // Validate email
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+        if (!formData.email || !emailRegex.test(formData.email)) {
+            newErrors.email = "Please enter a valid email address"
+            isValid = false
+        } else {
+            newErrors.email = ""
+        }
+
+        // Validate password
+        if (!formData.password || formData.password.length < 8) {
+            newErrors.password = "Password must be at least 8 characters long"
+            isValid = false
+        } else {
+            newErrors.password = ""
+        }
+
+        // Validate phone number
+        const phoneRegex = /^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s./0-9]*$/
+        if (!formData.phone || !phoneRegex.test(formData.phone)) {
+            newErrors.phone = "Please enter a valid phone number"
+            isValid = false
+        } else {
+            newErrors.phone = ""
+        }
+
+        // Validate blood type
+        if (!formData.bloodType) {
+            newErrors.bloodType = "Blood Type is required"
+            isValid = false
+        } else {
+            newErrors.bloodType = ""
+        }
+
+        setErrors(newErrors)
+        return isValid
+    }
+
+    const handleCreateAccount = async (e: React.FormEvent) => {
+        e.preventDefault();
+      
+        // Validate form before submitting
+        if (validateForm()) {
+          // Construct the user data object from the form
+          const userData = {
+            firstName: formData.firstName,
+            lastName: formData.lastName,
+            email: formData.email,
+            password: formData.password,
+            phone: formData.phone,
+            bloodType: formData.bloodType,
+            userType: userType, // Donor or Receiver
+            available: formData.available === "yes" ? 1 : 0 , // Send yes/no for donor availability
+            urgency: formData.urgency === "urgent" ? 1 : 0 , // Send urgent/normal for receiver urgency
+            };
+      
+          try {
+            // Send the user data to the backend to store in the database
+            const response = await fetch('/api/users', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(userData),
+            });
+      
+            // Check if the response was successful
+            if (response.ok) {
+              const result = await response.json();
+              console.log('Account created successfully:', result);
+              
+              // Redirect to the receiver page (or a success page)
+              if (userType === "donor") {
+                router.push("/donor-form"); // Redirect to donor form
+              } else {
+                router.push("/login"); // Redirect to login page for receiver
+              }
+            } else {
+              const error = await response.json();
+              console.error('Error creating account:', error.message)
+              // Handle the error and display a message to the user (you can show an error UI here)
+            }
+          } catch (error) {
+            console.error('Error during registration:', error);
+            
+            // Handle network or other errors
+          }
+        } else {
+          console.log("Form validation failed");
+          // Optionally, you can display a message on the UI if validation fails
+        }
+      };
+      
+
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
             <header className="bg-white border-b py-3 px-4">
@@ -49,37 +188,77 @@ export default function RegisterPage() {
                                 <TabsTrigger value="receiver">I need blood</TabsTrigger>
                             </TabsList>
 
-                            <form>
+                            <form onSubmit={handleCreateAccount}>
                                 <div className="grid gap-4">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="firstName">First Name</Label>
-                                            <Input id="firstName" placeholder="John" required />
+                                            <Input
+                                                id="firstName"
+                                                placeholder="John"
+                                                value={formData.firstName}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                            {errors.firstName && <p className="text-red-500 text-xs">{errors.firstName}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="lastName">Last Name</Label>
-                                            <Input id="lastName" placeholder="Doe" required />
+                                            <Input
+                                                id="lastName"
+                                                placeholder="Doe"
+                                                value={formData.lastName}
+                                                onChange={handleChange}
+                                                required
+                                            />
+                                            {errors.lastName && <p className="text-red-500 text-xs">{errors.lastName}</p>}
                                         </div>
                                     </div>
 
                                     <div className="space-y-2">
                                         <Label htmlFor="email">Email</Label>
-                                        <Input id="email" type="email" placeholder="john.doe@example.com" required />
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            placeholder="john.doe@example.com"
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                        {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
                                     </div>
 
                                     <div className="space-y-2">
                                         <Label htmlFor="password">Password</Label>
-                                        <Input id="password" type="password" required />
+                                        <Input
+                                            id="password"
+                                            type="password"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                        {errors.password && <p className="text-red-500 text-xs">{errors.password}</p>}
                                     </div>
 
                                     <div className="space-y-2">
                                         <Label htmlFor="phone">Phone Number</Label>
-                                        <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" required />
+                                        <Input
+                                            id="phone"
+                                            type="tel"
+                                            placeholder="+1 (555) 123-4567"
+                                            value={formData.phone}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                        {errors.phone && <p className="text-red-500 text-xs">{errors.phone}</p>}
                                     </div>
 
                                     <div className="space-y-2">
                                         <Label htmlFor="bloodType">Blood Type</Label>
-                                        <Select>
+                                        <Select
+                                            value={formData.bloodType}
+                                            onValueChange={(value) => setFormData({ ...formData, bloodType: value })}
+                                        >
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select blood type" />
                                             </SelectTrigger>
@@ -95,12 +274,20 @@ export default function RegisterPage() {
                                                 <SelectItem value="unknown">I don't know</SelectItem>
                                             </SelectContent>
                                         </Select>
+                                        {errors.bloodType && <p className="text-red-500 text-xs">{errors.bloodType}</p>}
                                     </div>
 
+                                    {/* Dynamic sections for donor or receiver */}
                                     {userType === "donor" && (
                                         <div className="space-y-2">
                                             <Label>Are you available to donate now?</Label>
-                                            <RadioGroup defaultValue="no" className="flex gap-4">
+                                            <RadioGroup 
+                                            value={formData.available}
+                                            onValueChange={(value) => {
+                                              setFormData({ ...formData, available: value });
+                                              console.log("Updated available:", value); // Log the updated value here
+                                            }}
+                                            className="flex gap-4">
                                                 <div className="flex items-center space-x-2">
                                                     <RadioGroupItem value="yes" id="available-yes" />
                                                     <Label htmlFor="available-yes">Yes</Label>
@@ -129,18 +316,15 @@ export default function RegisterPage() {
                                         </div>
                                     )}
                                 </div>
+
+                                <CardFooter>
+                                    <Button type="submit" className="w-full bg-red-600 hover:bg-red-700">
+                                        Create Account
+                                    </Button>
+                                </CardFooter>
                             </form>
                         </Tabs>
                     </CardContent>
-                    <CardFooter>
-                        {/* <Button className="w-full bg-red-600 hover:bg-red-700">Create Account</Button> */}
-                        <Button
-                        className="w-full bg-red-600 hover:bg-red-700"
-                        onClick={handleCreateAccount}
-                    >
-                        Create Account
-                    </Button>
-                    </CardFooter>
                     <div className="text-center pb-6">
                         <p className="text-sm text-gray-500">
                             Already have an account?{" "}
@@ -154,4 +338,3 @@ export default function RegisterPage() {
         </div>
     )
 }
-
