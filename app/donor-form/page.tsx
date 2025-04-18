@@ -425,6 +425,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ArrowLeft } from "lucide-react"
+import LocationPicker from "@/components/ui/LocationPicker"
 
 export default function DonorEligibilityForm() {
   const router = useRouter()
@@ -444,6 +445,7 @@ export default function DonorEligibilityForm() {
     diseaseDetails: "",
     lastDonation: "",
   })
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [formSubmitted, setFormSubmitted] = useState(false)
@@ -866,6 +868,13 @@ export default function DonorEligibilityForm() {
                 )}
               </div>
             </div>
+            <LocationPicker
+  onChange={(coords) => {
+    console.log("Selected location:", coords);
+    setCoords(coords);  // coords will now be { lat: number, lng: number }
+  }}
+/>
+
           </CardContent>
 
           <CardFooter>
