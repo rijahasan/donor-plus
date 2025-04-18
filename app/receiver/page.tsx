@@ -8,18 +8,24 @@ import { Search, Droplet } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import LocationPicker from "@/components/ui/LocationPicker"
 
 export default function ReceiverPage() {
   const router = useRouter()
   const [bloodType, setBloodType] = useState("")
+  const [location, setLocation] = useState("")
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
+
+
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!bloodType) return
-
-    // Navigate to results page with blood type parameter
-    router.push(`/receiver/results?bloodType=${encodeURIComponent(bloodType)}`)
+    if (!bloodType || !coords) return
+  
+    router.push(`/receiver/results?bloodType=${encodeURIComponent(bloodType)}&lat=${coords.lat}&lng=${coords.lng}`)
   }
+  
+  
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -51,10 +57,21 @@ export default function ReceiverPage() {
                   <SelectItem value="O-">O-</SelectItem>
                 </SelectContent>
               </Select>
+              <label htmlFor="location" className="text-sm font-medium block mt-4">
+  Your Location
+</label>
+
+<LocationPicker onChange={(coords) => setCoords(coords)} />
+
+<p className="text-sm text-muted-foreground mt-2">
+  Click on the map to set your location. We'll use it to find nearby donors.
+</p>
+
               <p className="text-sm text-muted-foreground mt-2">We'll find donors who can donate to your blood type</p>
             </div>
 
-            <Button type="submit" className="w-full" disabled={!bloodType}>
+            <Button type="submit" className="w-full" disabled={!bloodType || !location}>
+
               <Search className="mr-2 h-4 w-4" />
               Find Donors
             </Button>
