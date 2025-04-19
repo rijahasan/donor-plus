@@ -29,7 +29,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       if (!isPasswordCorrect) {
         return res.status(400).json({ message: "Invalid email or password." });
       }
-
+      let donorData = null;
+      if (user.userType === 'donor') {
+        const donorsCollection = db.collection("donors");
+        donorData = await donorsCollection.findOne({ email }); // Fetch donor information by email
+      }
+      
       // Generate a JWT token
       const token = jwt.sign(
         { userId: user._id, userType: user.userType },

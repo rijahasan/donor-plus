@@ -32,6 +32,12 @@ const registerDonor = async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {
       const donorData = req.body;
 
+
+      const existingDonor = await donorsCollection.findOne({ email: donorData.email });
+      if (existingDonor) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+      
       const result = await donorsCollection.insertOne(donorData);
       return res.status(201).json({ message: "Donor registered successfully", result });
     }
@@ -86,3 +92,4 @@ const registerDonor = async (req: NextApiRequest, res: NextApiResponse) => {
 };
 
 export default registerDonor;
+
