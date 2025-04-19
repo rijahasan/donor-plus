@@ -14,7 +14,24 @@ import LocationPicker from "@/components/ui/LocationPicker"
 
 export default function DonorEligibilityForm() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    bloodType: string;
+    age: string;
+    weight: string;
+    recentSurgery: string;
+    surgeryDetails: string;
+    recentIllness: string;
+    illnessDetails: string;
+    onMedication: string;
+    medicationDetails: string;
+    chronicDisease: string;
+    diseaseDetails: string;
+    lastDonation: string;
+    location: { lat: number | null; lng: number | null };
+  }>({
     firstName: "",
     lastName: "",
     email: "",
@@ -30,7 +47,9 @@ export default function DonorEligibilityForm() {
     chronicDisease: "no",
     diseaseDetails: "",
     lastDonation: "",
-  })
+    location: { lat: null, lng: null }, // ✅ added this correctly typed
+  });
+  
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -136,45 +155,39 @@ export default function DonorEligibilityForm() {
     return Object.keys(newErrors).length === 0
   }
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setFormSubmitted(true)
-    
-        if (validateForm()) {
-            // Form is valid, proceed with submission
-            console.log("Form submitted successfully", formData)
-        
-            try {
-              // Send data to the backend API
-              const response = await fetch("/api/donors", {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-              })
-        
-              if (!response.ok) {
-                throw new Error("Failed to submit the form")
-              }
-        
-              const result = await response.json()
-              console.log(result.message)
-        
-              // Redirect to the success page
-              router.push("/dashboard")
-            } catch (error) {
-              console.error("Error submitting form:", error)
-            }
-          }else {
-          // Scroll to the first error
-          const firstErrorField = document.querySelector("[data-error='true']")
-          if (firstErrorField) {
-            firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" })
-          }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormSubmitted(true);
+  
+    if (validateForm()) {
+      console.log("Form submitted successfully", formData); // ✅ Confirm location is in here
+  
+      try {
+        const response = await fetch("/api/donors", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData), // ✅ use full formData (includes location now)
+        });
+  
+        if (!response.ok) {
+          throw new Error("Failed to submit the form");
         }
+  
+        const result = await response.json();
+        console.log(result.message);
+  
+        router.push("/dashboard");
+      } catch (error) {
+        console.error("Error submitting form:", error);
       }
-    
+    } else {
+      const firstErrorField = document.querySelector("[data-error='true']");
+      if (firstErrorField) {
+        firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  };
+  
   const goBack = () => {
     router.push("/register")
   }
@@ -471,7 +484,10 @@ export default function DonorEligibilityForm() {
             <LocationPicker
   onChange={(coords) => {
     console.log("Selected location:", coords);
-    setCoords(coords);  // coords will now be { lat: number, lng: number }
+    setFormData((prev) => ({
+      ...prev,
+      location: coords
+    }));
   }}
 />
 

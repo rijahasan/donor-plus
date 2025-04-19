@@ -38,7 +38,26 @@ const registerDonor = async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(400).json({ message: "Email already registered" });
       }
       
-      const result = await donorsCollection.insertOne(donorData);
+      const donor = {
+        firstName: donorData.firstName,
+        lastName: donorData.lastName,
+        email: donorData.email,
+        bloodType: donorData.bloodType,
+        age: donorData.age,
+        weight: donorData.weight,
+        recentSurgery: donorData.recentSurgery,
+        surgeryDetails: donorData.surgeryDetails,
+        recentIllness: donorData.recentIllness,
+        illnessDetails: donorData.illnessDetails,
+        onMedication: donorData.onMedication,
+        medicationDetails: donorData.medicationDetails,
+        chronicDisease: donorData.chronicDisease,
+        diseaseDetails: donorData.diseaseDetails,
+        lastDonation: donorData.lastDonation,
+        location: donorData.location || null,  // ✅ add location safely
+      };
+      
+      const result = await donorsCollection.insertOne(donor);
       return res.status(201).json({ message: "Donor registered successfully", result });
     }
 
