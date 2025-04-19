@@ -176,7 +176,7 @@ export default function DonorEligibilityForm() {
         const result = await response.json();
         console.log(result.message);
   
-        router.push("/dashboard");
+        router.push("/login");
       } catch (error) {
         console.error("Error submitting form:", error);
       }

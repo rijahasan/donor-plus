@@ -63,9 +63,9 @@ export default function DashboardPage() {
                     <Badge className="bg-red-600">{donor?.bloodType}</Badge>
                     <Badge variant="outline">Donor</Badge>
                   </div>
-                  <p className="text-sm text-gray-500 mt-2 flex items-center">
-                    <MapPin className="h-3 w-3 mr-1" /> {donor?.location || "N/A"}
-                  </p>
+                  {/* <p className="text-sm text-gray-500 mt-2 flex items-center"> */}
+                    {/* <MapPin className="h-3 w-3 mr-1" /> {donor?.location || "N/A"} */}
+                  {/* </p> */}
                 </div>
 
                 <div className="space-y-4">
