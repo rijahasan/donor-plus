@@ -10,8 +10,7 @@ interface Donor {
   id: number;
   name: string;
   bloodType: string;
-  location: string;
-  distance: string;
+  location: { lat: number; lng: number };
   available: boolean;
 }
 
@@ -144,7 +143,7 @@ export default function SearchResultsPage() {
                     <Badge className="bg-green-500">Available</Badge>
                   </div>
                   <CardDescription>
-                    {donor.location} • {donor.distance}
+                  <div>{donor.location?.lat}, {donor.location?.lng}</div>  
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pb-2">
@@ -152,6 +151,7 @@ export default function SearchResultsPage() {
                     <Droplet className="h-5 w-5 mr-2 text-red-500" />
                     <span className="font-medium">{donor.bloodType} blood type</span>
                   </div>
+                  <div>{donor.location?.lat}, {donor.location?.lng}</div>
                 </CardContent>
                 <CardFooter>
                   <Button variant="outline" className="w-full" onClick={() => handleViewDonor(donor.id)}>
@@ -184,7 +184,7 @@ export default function SearchResultsPage() {
                     <Badge className="bg-gray-400">Unavailable</Badge>
                   </div>
                   <CardDescription>
-                    {donor.location} • {donor.distance}
+                  <div>{donor.location?.lat}, {donor.location?.lng}</div> 
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pb-2">
@@ -219,4 +219,3 @@ export default function SearchResultsPage() {
     </div>
   )
 }
-
