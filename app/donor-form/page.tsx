@@ -31,6 +31,7 @@ export default function DonorEligibilityForm() {
     diseaseDetails: string;
     lastDonation: string;
     location: { lat: number | null; lng: number | null };
+    available: string; 
   }>({
     firstName: "",
     lastName: "",
@@ -48,6 +49,7 @@ export default function DonorEligibilityForm() {
     diseaseDetails: "",
     lastDonation: "",
     location: { lat: null, lng: null }, // ✅ added this correctly typed
+    available: "", 
   });
   
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
@@ -149,6 +151,9 @@ export default function DonorEligibilityForm() {
 
     if (formData.chronicDisease === "yes" && !formData.diseaseDetails.trim()) {
       newErrors.diseaseDetails = "Please provide details about your chronic disease(s)"
+    }
+    if (!formData.available.trim()) {
+      newErrors.available = "Please specify your availability"
     }
 
     setErrors(newErrors)
@@ -277,6 +282,27 @@ export default function DonorEligibilityForm() {
                 {errors.bloodType && <p className="mt-1 text-sm text-red-500">{errors.bloodType}</p>}
               </div>
             </div>
+              
+                      <div data-error={!!errors.available}>
+            <Label htmlFor="available" className="text-base">
+              Are you available for donation? <span className="text-red-500">*</span>
+            </Label>
+            <select
+              id="available"
+              value={formData.available}
+              onChange={(e) => handleInputChange("available", e.target.value)}
+              className={`w-full h-10 px-3 py-2 border rounded-md ${
+                errors.available ? "border-red-500" : "border-input"
+              }`}
+            >
+              <option value="">Select availability</option>
+              <option value="yes">Yes</option>
+              <option value="no">No</option>
+            </select>
+            {errors.available && <p className="mt-1 text-sm text-red-500">{errors.available}</p>}
+          </div>
+
+
 
             <div className="space-y-4">
               <div data-error={!!errors.age}>

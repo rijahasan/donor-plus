@@ -55,6 +55,7 @@ const registerDonor = async (req: NextApiRequest, res: NextApiResponse) => {
         diseaseDetails: donorData.diseaseDetails,
         lastDonation: donorData.lastDonation,
         location: donorData.location || null,  // ✅ add location safely
+        available: donorData.available || "no",
       };
       
       const result = await donorsCollection.insertOne(donor);
