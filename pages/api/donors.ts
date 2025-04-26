@@ -32,7 +32,33 @@ const registerDonor = async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {
       const donorData = req.body;
 
-      const result = await donorsCollection.insertOne(donorData);
+
+      const existingDonor = await donorsCollection.findOne({ email: donorData.email });
+      if (existingDonor) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+      
+      const donor = {
+        firstName: donorData.firstName,
+        lastName: donorData.lastName,
+        email: donorData.email,
+        bloodType: donorData.bloodType,
+        age: donorData.age,
+        weight: donorData.weight,
+        recentSurgery: donorData.recentSurgery,
+        surgeryDetails: donorData.surgeryDetails,
+        recentIllness: donorData.recentIllness,
+        illnessDetails: donorData.illnessDetails,
+        onMedication: donorData.onMedication,
+        medicationDetails: donorData.medicationDetails,
+        chronicDisease: donorData.chronicDisease,
+        diseaseDetails: donorData.diseaseDetails,
+        lastDonation: donorData.lastDonation,
+        location: donorData.location || null,  // ✅ add location safely
+        available: donorData.available || "no",
+      };
+      
+      const result = await donorsCollection.insertOne(donor);
       return res.status(201).json({ message: "Donor registered successfully", result });
     }
 
@@ -86,3 +112,4 @@ const registerDonor = async (req: NextApiRequest, res: NextApiResponse) => {
 };
 
 export default registerDonor;
+
