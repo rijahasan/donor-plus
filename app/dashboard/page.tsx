@@ -6,21 +6,63 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MapPin, Calendar, Clock } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+
 
 export default function DashboardPage() {
   const [donor, setDonor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  useEffect(() => {
-    const donorData = localStorage.getItem("donor");
+  // useEffect(() => {
+  //   const donorData = localStorage.getItem("donor");
 
-    if (donorData) {
-      setDonor(JSON.parse(donorData));  // Retrieve donor info from localStorage
-      setLoading(false);
-    } else {
-      router.push("/login"); // If no donor data, redirect to login
-    }
+
+  //   if (donorData) {
+  //     setDonor(JSON.parse(donorData));  // Retrieve donor info from localStorage
+  //     setLoading(false);
+  //   } else {
+  //     router.push("/login"); // If no donor data, redirect to login
+  //   }
+  // }, [router]);
+
+  // if (loading) return <div>Loading...</div>;
+
+  useEffect(() => {
+    const fetchDonorInfo = async () => {
+      try {
+        // Get the saved email (still from localStorage)
+        const donorData = localStorage.getItem("donor");
+        const donorObject = donorData ? JSON.parse(donorData) : null;
+
+        if (!donorObject?.email) {
+          router.push("/login");
+          return;
+        }
+
+        const response = await fetch("/api/donor-info", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            email: donorObject.email, // <- pass email in headers
+          },
+        });
+
+        if (!response.ok) {
+          router.push("/login");
+          return;
+        }
+
+        const data = await response.json();
+        setDonor(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching donor info:", error);
+        router.push("/login");
+      }
+    };
+
+    fetchDonorInfo();
   }, [router]);
 
   if (loading) return <div>Loading...</div>;
@@ -63,16 +105,40 @@ export default function DashboardPage() {
                     <Badge className="bg-red-600">{donor?.bloodType}</Badge>
                     <Badge variant="outline">Donor</Badge>
                   </div>
-                  {/* <p className="text-sm text-gray-500 mt-2 flex items-center"> */}
-                    {/* <MapPin className="h-3 w-3 mr-1" /> {donor?.location || "N/A"} */}
-                  {/* </p> */}
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex justify-between">
+                  {/* Availability Toggle */}
+                  <div className="flex items-center justify-between">
                     <span className="font-medium">Available to donate</span>
-                    <span className="text-sm text-gray-500">{donor?.available || "N/A"}</span>
+                    <Switch
+                      checked={donor?.available}
+                      onCheckedChange={async (value) => {
+                        const updatedDonor = { ...donor, available: value };
+                        setDonor(updatedDonor);
+                        localStorage.setItem("donor", JSON.stringify(updatedDonor));
+
+                        // Send to server (PATCH)
+                        const response = await fetch("/api/donor-info", {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            email: donor.email,      // Email of the donor
+                            available: value         // New availability
+                          }),
+                        });
+
+                        const result = await response.json();
+                        if (response.ok) {
+                          console.log("Donor updated successfully:", result);
+                        } else {
+                          console.error("Error updating donor:", result);
+                        }
+                      }}
+
+                    />
                   </div>
+
                   <div className="flex justify-between">
                     <span className="font-medium">Age</span>
                     <span className="text-sm text-gray-500">{donor?.age || "N/A"}</span>
@@ -88,6 +154,7 @@ export default function DashboardPage() {
                 </div>
               </CardContent>
             </Card>
+
 
             {/* Health Information */}
             <Card>
