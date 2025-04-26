@@ -37,6 +37,8 @@ export default function SearchResultsPage() {
 
   const [donors, setDonors] = useState<Donor[]>([])
   const [loading, setLoading] = useState(true)
+  const [receiverLocation, setReceiverLocation] = useState<{ lat: number; lng: number } | null>(null);
+
 
   const receiverBloodType = searchParams?.get("bloodType") || ""
 
