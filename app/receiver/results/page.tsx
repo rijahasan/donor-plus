@@ -6,6 +6,8 @@ import { ArrowLeft, Droplet } from "lucide-react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import LocationPicker from '@/components/ui/LocationPicker'; // Assuming LocationPicker is in the same directory
+
 
 // Inside SearchResultsPage.tsx
 const [receiverLocation, setReceiverLocation] = useState<{ lat: number; lng: number } | null>(null);
