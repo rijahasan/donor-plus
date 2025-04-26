@@ -1,215 +1,172 @@
 "use client"
-
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Droplet, MapPin, Phone, Mail, MessageSquare } from "lucide-react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Textarea } from "@/components/ui/textarea"
+import {
+  ArrowLeft,
+  Droplet,
+  MapPin,
+  Phone,
+  Mail,
+  HandHeart
+} from "lucide-react"
+import {
+  Card, CardHeader, CardTitle, CardDescription,
+  CardContent, CardFooter
+} from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { useState } from "react"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 
-// Helper function to determine blood type compatibility
-const getCompatibleBloodTypes = (receiverBloodType: string): string[] => {
-    switch (receiverBloodType) {
-        case "A+":
-            return ["A+", "A-", "O+", "O-"]
-        case "A-":
-            return ["A-", "O-"]
-        case "B+":
-            return ["B+", "B-", "O+", "O-"]
-        case "B-":
-            return ["B-", "O-"]
-        case "AB+":
-            return ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
-        case "AB-":
-            return ["A-", "B-", "AB-", "O-"]
-        case "O+":
-            return ["O+", "O-"]
-        case "O-":
-            return ["O-"]
-        default:
-            return []
-    }
+interface Donor {
+  _id: string
+  firstName: string
+  lastName: string
+  email: string
+  bloodType: string
+  age: number
+  weight: number
+  recentSurgery: string
+  surgeryDetails: string
+  recentIllness: string
+  illnessDetails: string
+  onMedication: string
+  medicationDetails: string
+  chronicDisease: string
+  diseaseDetails: string
+  lastDonation: string | null
+  location: { lat: number; lng: number }
+  available: string // "yes" or "no"
+  donationHistory?: { date: string; location: string }[]
 }
 
-export default function DonorProfilePage({ params }: { params: { id: string } }) {
-    const router = useRouter()
-    const [message, setMessage] = useState("")
-    const donorId = Number.parseInt(params.id)
+export default function DonorProfile({ params }: { params: { id: string } }) {
+  const router = useRouter()
+  const [donor, setDonor] = useState<Donor | null>(null)
 
-    // Mock donor data - in a real app, this would be fetched from an API
-    const donor = {
-        id: donorId,
-        name: "John Doe",
-        avatar: "JD",
-        bloodType: "O-",
-        location: "New York",
-        distance: "2.5 miles",
-        available: true,
-        phone: "+1 (555) 123-4567",
-        email: "john.doe@example.com",
-        donationHistory: [
-            { date: "January 15, 2023", location: "New York Blood Center" },
-            { date: "October 3, 2022", location: "Red Cross Blood Drive" },
-            { date: "May 22, 2022", location: "Memorial Hospital" },
-        ],
+  useEffect(() => {
+    const fetchDonor = async () => {
+      try {
+        const res = await fetch(`/api/donors/${params.id}`)
+        const data = await res.json()
+        setDonor(data)
+      } catch (err) {
+        console.error("❌ Error fetching donor:", err)
+      }
     }
 
-    const handleSendMessage = () => {
-        if (!message.trim()) return
+    fetchDonor()
+  }, [params.id])
 
-        // In a real app, this would send the message to the backend
-        console.log("Sending message to donor:", donorId, message)
-        alert("Message sent successfully!")
-        setMessage("")
-    }
+  const handleGoBack = () => router.back()
+  const handleRequestBlood = () => {
+    alert("🩸 Blood request sent successfully!")
+  }
 
-    const handleGoBack = () => {
-        router.back()
-    }
+  if (!donor) return <div className="p-8">Loading...</div>
 
-    if (!donor) {
-        return (
-            <div className="container mx-auto px-4 py-8 text-center">
-                <p>Donor not found</p>
-                <Button onClick={handleGoBack} className="mt-4">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Search
-                </Button>
-            </div>
-        )
-    }
+  const fullName = `${donor.firstName} ${donor.lastName}`
+  const isAvailable = donor.available === "yes"
+  const locationText = `${donor.location.lat}, ${donor.location.lng}`
 
-    // List of blood types this donor can donate to
-    const canDonateTo = []
-    if (donor.bloodType === "O-") {
-        canDonateTo.push("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
-    } else if (donor.bloodType === "O+") {
-        canDonateTo.push("A+", "B+", "AB+", "O+")
-    } else if (donor.bloodType === "A-") {
-        canDonateTo.push("A+", "A-", "AB+", "AB-")
-    } else if (donor.bloodType === "A+") {
-        canDonateTo.push("A+", "AB+")
-    } else if (donor.bloodType === "B-") {
-        canDonateTo.push("B+", "B-", "AB+", "AB-")
-    } else if (donor.bloodType === "B+") {
-        canDonateTo.push("B+", "AB+")
-    } else if (donor.bloodType === "AB-") {
-        canDonateTo.push("AB+", "AB-")
-    } else if (donor.bloodType === "AB+") {
-        canDonateTo.push("AB+")
-    }
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <Button variant="ghost" onClick={handleGoBack} className="mb-6">
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to Search
+      </Button>
 
-    return (
-        <div className="container mx-auto px-4 py-8">
-            <Button variant="ghost" onClick={handleGoBack} className="mb-6">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Search
-            </Button>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="md:col-span-2">
-                    <Card>
-                        <CardHeader>
-                            <div className="flex items-center gap-4">
-                                <Avatar className="h-16 w-16">
-                                    <AvatarFallback className="text-lg">{donor.avatar}</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <CardTitle className="text-2xl">{donor.name}</CardTitle>
-                                    <CardDescription className="flex items-center mt-1">
-                                        <MapPin className="h-4 w-4 mr-1" />
-                                        {donor.location} • {donor.distance}
-                                    </CardDescription>
-                                </div>
-                                <Badge className={`ml-auto ${donor.available ? "bg-green-500" : "bg-gray-400"}`}>
-                                    {donor.available ? "Available" : "Unavailable"}
-                                </Badge>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="flex items-center p-4 border rounded-lg">
-                                    <Droplet className="h-8 w-8 mr-3 text-red-500" />
-                                    <div>
-                                        <p className="text-sm text-muted-foreground">Blood Type</p>
-                                        <p className="text-xl font-bold">{donor.bloodType}</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h3 className="text-lg font-semibold mb-3">Contact Information</h3>
-                                <div className="space-y-2">
-                                    <div className="flex items-center">
-                                        <Phone className="h-4 w-4 mr-2 text-muted-foreground" />
-                                        <span>{donor.phone}</span>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <Mail className="h-4 w-4 mr-2 text-muted-foreground" />
-                                        <span>{donor.email}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div>
-                                <h3 className="text-lg font-semibold mb-3">Donation History</h3>
-                                <div className="space-y-2">
-                                    {donor.donationHistory.map((donation, index) => (
-                                        <div key={index} className="p-3 border rounded-md">
-                                            <p className="font-medium">{donation.date}</p>
-                                            <p className="text-sm text-muted-foreground">{donation.location}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Main profile info */}
+        <div className="md:col-span-2">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <Avatar className="h-16 w-16">
+                  <AvatarFallback>{donor.firstName[0]}{donor.lastName[0]}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <CardTitle className="text-2xl">{fullName}</CardTitle>
+                  <CardDescription className="flex items-center mt-1">
+                    <MapPin className="h-4 w-4 mr-1" />
+                    {locationText}
+                  </CardDescription>
                 </div>
+                <Badge className={`ml-auto ${isAvailable ? "bg-green-500" : "bg-gray-400"}`}>
+                  {isAvailable ? "Available" : "Unavailable"}
+                </Badge>
+              </div>
+            </CardHeader>
 
-                <div className="space-y-6">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Blood Type Compatibility</CardTitle>
-                            <CardDescription>This donor can donate to:</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="flex flex-wrap gap-2">
-                                {canDonateTo.map((type) => (
-                                    <Badge key={type} variant="outline" className="text-sm">
-                                        <Droplet className="h-3 w-3 mr-1 text-red-500" />
-                                        {type}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
+            <CardContent className="space-y-6">
+              {/* Basic Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <InfoBox label="Blood Type" value={donor.bloodType} icon={<Droplet className="text-red-500 h-6 w-6" />} />
+                <InfoBox label="Age" value={`${donor.age} years`} />
+                <InfoBox label="Weight" value={`${donor.weight} kg`} />
+                <InfoBox label="Email" value={donor.email} icon={<Mail className="h-4 w-4" />} />
+                <InfoBox label="Last Donation" value={donor.lastDonation ?? "N/A"} />
+              </div>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Send Message</CardTitle>
-                            <CardDescription>Contact this donor directly</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Textarea
-                                placeholder="Type your message here..."
-                                className="min-h-[120px]"
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                            />
-                        </CardContent>
-                        <CardFooter>
-                            <Button className="w-full" onClick={handleSendMessage} disabled={!donor.available}>
-                                <MessageSquare className="mr-2 h-4 w-4" />
-                                Send Message
-                            </Button>
-                            {!donor.available && <p className="text-sm text-red-500 mt-2">This donor is currently unavailable</p>}
-                        </CardFooter>
-                    </Card>
+              {/* Medical Info */}
+              <div>
+                <h3 className="text-lg font-semibold mb-3">Medical Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InfoBox label="Recent Surgery" value={donor.recentSurgery} />
+                  <InfoBox label="Surgery Details" value={donor.surgeryDetails || "N/A"} />
+                  <InfoBox label="Recent Illness" value={donor.recentIllness} />
+                  <InfoBox label="Illness Details" value={donor.illnessDetails || "N/A"} />
+                  <InfoBox label="On Medication" value={donor.onMedication} />
+                  <InfoBox label="Medication Details" value={donor.medicationDetails || "N/A"} />
+                  <InfoBox label="Chronic Disease" value={donor.chronicDisease} />
+                  <InfoBox label="Disease Details" value={donor.diseaseDetails || "N/A"} />
                 </div>
-            </div>
+              </div>
+
+              {/* Donation History */}
+              {donor.donationHistory?.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Donation History</h3>
+                  <div className="space-y-2">
+                    {donor.donationHistory.map((entry, index) => (
+                      <div key={index} className="p-3 border rounded-md">
+                        <p className="font-medium">{entry.date}</p>
+                        <p className="text-sm text-muted-foreground">{entry.location}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-    )
+
+        {/* Action Panel */}
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Request Blood</CardTitle>
+              <CardDescription>Send a blood request to this donor.</CardDescription>
+            </CardHeader>
+            <CardFooter>
+              <Button className="w-full" onClick={handleRequestBlood} disabled={!isAvailable}>
+                <HandHeart className="mr-2 h-4 w-4" />
+                Request for Blood
+              </Button>
+            </CardFooter>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
 }
 
+// Reusable info box
+const InfoBox = ({ label, value, icon }: { label: string, value: string, icon?: React.ReactNode }) => (
+  <div className="flex items-center p-4 border rounded-lg">
+    {icon && <div className="mr-3">{icon}</div>}
+    <div>
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="text-base font-semibold">{value}</p>
+    </div>
+  </div>
+)
