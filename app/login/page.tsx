@@ -39,9 +39,30 @@ export default function LoginPage() {
                 localStorage.setItem("authToken", data.token);
 
                 // Redirect to respective screen based on userType
+                // if (data.userType === "donor") {
+                //     // router.push("/dashboard"); // Redirect to donor dashboard
+                    
+                
+                // } 
                 if (data.userType === "donor") {
-                    router.push("/dashboard"); // Redirect to donor dashboard
-                } else if (data.userType === "receiver") {
+                    const donorResponse = await fetch("/api/donor-info", {
+                      method: "GET",
+                      headers: {
+                        "Content-Type": "application/json",
+                        "email": email,  // Send email to fetch donor details
+                      },
+                    });
+          
+                    if (donorResponse.ok) {
+                      const donorData = await donorResponse.json();
+                      // Store donor info in localStorage
+                      localStorage.setItem("donor", JSON.stringify(donorData));
+                      router.push("/dashboard");  // Redirect to dashboard for donors
+                    } else {
+                      setError("No donor found with this email.");
+                    }
+                  }
+                else if (data.userType === "receiver") {
                     router.push("/receiver"); // Redirect to receiver dashboard
                 }
             } else {
