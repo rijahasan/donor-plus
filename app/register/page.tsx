@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
     const searchParams = useSearchParams()
-    const defaultType = searchParams.get("type") || "donor"
+    const defaultType = searchParams?.get("type") || "donor"
     const [userType, setUserType] = useState(defaultType)
     const router = useRouter()
 
@@ -107,59 +107,61 @@ export default function RegisterPage() {
 
     const handleCreateAccount = async (e: React.FormEvent) => {
         e.preventDefault();
-      
+
         // Validate form before submitting
         if (validateForm()) {
-          // Construct the user data object from the form
-          const userData = {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            password: formData.password,
-            phone: formData.phone,
-            bloodType: formData.bloodType,
-            userType: userType, // Donor or Receiver
-            available: formData.available === "yes" ? 1 : 0 , // Send yes/no for donor availability
-            urgency: formData.urgency === "urgent" ? 1 : 0 , // Send urgent/normal for receiver urgency
+            // Construct the user data object from the form
+            const userData = {
+                firstName: formData.firstName,
+                lastName: formData.lastName,
+                email: formData.email,
+                password: formData.password,
+                phone: formData.phone,
+                bloodType: formData.bloodType,
+                userType: userType, // Donor or Receiver
+                available: formData.available === "yes" ? 1 : 0, // Send yes/no for donor availability
+                urgency: formData.urgency === "urgent" ? 1 : 0, // Send urgent/normal for receiver urgency
             };
-      
-          try {
-            // Send the user data to the backend to store in the database
-            const response = await fetch('/api/users', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(userData),
-            });
-      
-            // Check if the response was successful
-            if (response.ok) {
-              const result = await response.json();
-              console.log('Account created successfully:', result);
-              
-              // Redirect to the receiver page (or a success page)
-              if (userType === "donor") {
-                router.push("/donor-form"); // Redirect to donor form
-              } else {
-                router.push("/login"); // Redirect to login page for receiver
-              }
-            } else {
-              const error = await response.json();
-              console.error('Error creating account:', error.message)
-              // Handle the error and display a message to the user (you can show an error UI here)
+
+
+            // only save directly if receiver
+            if (userType === 'receiver') {
+                try {
+                    const response = await fetch('/api/users', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(userData),
+                    });
+
+                    // Check if the response was successful
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Account created successfully:', result);
+                    }
+                } catch (error) {
+                    console.error('Error during registration:', error);
+
+                    // Handle network or other errors
+                }
+
             }
-          } catch (error) {
-            console.error('Error during registration:', error);
-            
+            // else if donor then pass info to donor form
+            // Redirect to the receiver page (or a success page)
+            if (userType === "donor") {
+                const query = new URLSearchParams(formData as Record<string, string>).toString();
+                router.push(`/donor-form?${query}`);
+
+            }
             // Handle network or other errors
-          }
+
         } else {
-          console.log("Form validation failed");
-          // Optionally, you can display a message on the UI if validation fails
+            console.log("Form validation failed");
+            // Optionally, you can display a message on the UI if validation fails
         }
-      };
-      
+    };
+
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -254,7 +256,11 @@ export default function RegisterPage() {
                                     </div>
 
                                     <div className="space-y-2">
-                                        <Label htmlFor="bloodType">Blood Type</Label>
+                                        {userType === 'donor' ? (
+                                            <Label htmlFor="bloodType">Blood Type</Label>
+                                        ) : (
+                                            <Label htmlFor="bloodType">Blood Type Needed</Label>
+                                        )}
                                         <Select
                                             value={formData.bloodType}
                                             onValueChange={(value) => setFormData({ ...formData, bloodType: value })}
@@ -281,13 +287,13 @@ export default function RegisterPage() {
                                     {userType === "donor" && (
                                         <div className="space-y-2">
                                             <Label>Are you available to donate now?</Label>
-                                            <RadioGroup 
-                                            value={formData.available}
-                                            onValueChange={(value) => {
-                                              setFormData({ ...formData, available: value });
-                                              console.log("Updated available:", value); // Log the updated value here
-                                            }}
-                                            className="flex gap-4">
+                                            <RadioGroup
+                                                value={formData.available}
+                                                onValueChange={(value) => {
+                                                    setFormData({ ...formData, available: value });
+                                                    console.log("Updated available:", value); // Log the updated value here
+                                                }}
+                                                className="flex gap-4">
                                                 <div className="flex items-center space-x-2">
                                                     <RadioGroupItem value="yes" id="available-yes" />
                                                     <Label htmlFor="available-yes">Yes</Label>

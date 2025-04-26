@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -14,29 +14,44 @@ import LocationPicker from "@/components/ui/LocationPicker"
 
 export default function DonorEligibilityForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const firstName = searchParams?.get("firstName") || ""
+  const lastName = searchParams?.get("lastName") || ""
+  const email = searchParams?.get("email") || ""
+  const password = searchParams?.get("password") || ""
+  const phone = searchParams?.get("phone") || ""
+  const bloodType = searchParams?.get("bloodType") || ""
+  // const usertype = searchParams?.get("age") || ""
+  const available = searchParams?.get("available") || ""
+
   const [formData, setFormData] = useState<{
-    firstName: string;
-    lastName: string;
-    email: string;
-    bloodType: string;
-    age: string;
-    weight: string;
-    recentSurgery: string;
-    surgeryDetails: string;
-    recentIllness: string;
-    illnessDetails: string;
-    onMedication: string;
-    medicationDetails: string;
-    chronicDisease: string;
-    diseaseDetails: string;
-    lastDonation: string;
-    location: { lat: number | null; lng: number | null };
-    available: string; 
+    firstName: string
+    lastName: string
+    email: string
+    password: string
+    phone: string
+    bloodType: string
+    age: string
+    weight: string
+    recentSurgery: string
+    surgeryDetails: string
+    recentIllness: string
+    illnessDetails: string
+    onMedication: string
+    medicationDetails: string
+    chronicDisease: string
+    diseaseDetails: string
+    lastDonation: string
+    location: { lat: number | null; lng: number | null }
+    available: string
   }>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    bloodType: "",
+    firstName: firstName,
+    lastName: lastName,
+    email: email,
+    password: password,
+    phone: phone,
+    bloodType: bloodType,
     age: "",
     weight: "",
     recentSurgery: "no",
@@ -48,10 +63,10 @@ export default function DonorEligibilityForm() {
     chronicDisease: "no",
     diseaseDetails: "",
     lastDonation: "",
-    location: { lat: null, lng: null }, // ✅ added this correctly typed
-    available: "", 
-  });
-  
+    location: { lat: null, lng: null },
+    available: available,
+  })
+
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
 
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -107,6 +122,7 @@ export default function DonorEligibilityForm() {
       newErrors.weight = "You must weigh at least 55kg to donate blood"
     }
 
+
     // Last donation validation (optional)
     if (formData.lastDonation) {
       const lastDonationDate = new Date(formData.lastDonation)
@@ -150,7 +166,7 @@ export default function DonorEligibilityForm() {
     }
 
     if (formData.chronicDisease === "yes" && !formData.diseaseDetails.trim()) {
-      newErrors.diseaseDetails = "Please provide details about your chronic disease(s)"
+      newErrors.diseaseDetails = "Certain chronic diseases may disqualify you from donating blood"
     }
     if (!formData.available.trim()) {
       newErrors.available = "Please specify your availability"
@@ -161,38 +177,65 @@ export default function DonorEligibilityForm() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormSubmitted(true);
-  
+    e.preventDefault()
+    setFormSubmitted(true)
+
     if (validateForm()) {
-      console.log("Form submitted successfully", formData); // ✅ Confirm location is in here
-  
+      console.log("Form submitted successfully", formData)
+
       try {
+        // First API call to /api/users with searchParams data
+        const takenuserData = {
+
+          firstName,
+          lastName,
+          email,
+          password,
+          phone,
+          bloodType,
+          available: available === "yes" ? "yes" : "no",
+          urgency: "",
+          userType: "donor"
+        }
+
+        const userResponse = await fetch("/api/users", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(takenuserData),
+        })
+
+        if (!userResponse.ok) {
+          throw new Error("Failed to submit user data")
+        }
+
+        // Second API call to /api/donors with all form data
         const response = await fetch("/api/donors", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData), // ✅ use full formData (includes location now)
-        });
-  
+          body: JSON.stringify(formData),
+        })
+
         if (!response.ok) {
-          throw new Error("Failed to submit the form");
+          throw new Error("Failed to submit the form")
         }
-  
-        const result = await response.json();
-        console.log(result.message);
-  
-        router.push("/login");
+
+        const result = await response.json()
+        console.log(result.message)
+
+        router.push("/login")
       } catch (error) {
-        console.error("Error submitting form:", error);
+        console.error("Error submitting form:", error)
       }
     } else {
-      const firstErrorField = document.querySelector("[data-error='true']");
+      const firstErrorField = document.querySelector("[data-error='true']")
       if (firstErrorField) {
-        firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" });
+        firstErrorField.scrollIntoView({ behavior: "smooth", block: "center" })
       }
     }
-  };
-  
+  }
+
   const goBack = () => {
     router.push("/register")
   }
@@ -265,9 +308,7 @@ export default function DonorEligibilityForm() {
                   id="bloodType"
                   value={formData.bloodType}
                   onChange={(e) => handleInputChange("bloodType", e.target.value)}
-                  className={`w-full h-10 px-3 py-2 border rounded-md ${
-                    errors.bloodType ? "border-red-500" : "border-input"
-                  }`}
+                  className={`w-full h-10 px-3 py-2 border rounded-md ${errors.bloodType ? "border-red-500" : "border-input"}`}
                 >
                   <option value="">Select your blood type</option>
                   <option value="A+">A+</option>
@@ -282,27 +323,23 @@ export default function DonorEligibilityForm() {
                 {errors.bloodType && <p className="mt-1 text-sm text-red-500">{errors.bloodType}</p>}
               </div>
             </div>
-              
-                      <div data-error={!!errors.available}>
-            <Label htmlFor="available" className="text-base">
-              Are you available for donation? <span className="text-red-500">*</span>
-            </Label>
-            <select
-              id="available"
-              value={formData.available}
-              onChange={(e) => handleInputChange("available", e.target.value)}
-              className={`w-full h-10 px-3 py-2 border rounded-md ${
-                errors.available ? "border-red-500" : "border-input"
-              }`}
-            >
-              <option value="">Select availability</option>
-              <option value="yes">Yes</option>
-              <option value="no">No</option>
-            </select>
-            {errors.available && <p className="mt-1 text-sm text-red-500">{errors.available}</p>}
-          </div>
 
-
+            <div data-error={!!errors.available}>
+              <Label htmlFor="available" className="text-base">
+                Are you available for donation? <span className="text-red-500">*</span>
+              </Label>
+              <select
+                id="available"
+                value={formData.available}
+                onChange={(e) => handleInputChange("available", e.target.value)}
+                className={`w-full h-10 px-3 py-2 border rounded-md ${errors.available ? "border-red-500" : "border-input"}`}
+              >
+                <option value="">Select availability</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </select>
+              {errors.available && <p className="mt-1 text-sm text-red-500">{errors.available}</p>}
+            </div>
 
             <div className="space-y-4">
               <div data-error={!!errors.age}>
@@ -379,9 +416,7 @@ export default function DonorEligibilityForm() {
                       placeholder="Provide details about your surgery"
                       value={formData.surgeryDetails}
                       onChange={(e) => handleInputChange("surgeryDetails", e.target.value)}
-                      className={`w-full min-h-[80px] px-3 py-2 border rounded-md ${
-                        errors.surgeryDetails ? "border-red-500" : "border-input"
-                      }`}
+                      className={`w-full min-h-[80px] px-3 py-2 border rounded-md ${errors.surgeryDetails ? "border-red-500" : "border-input"}`}
                     />
                     {errors.surgeryDetails && <p className="mt-1 text-sm text-red-500">{errors.surgeryDetails}</p>}
                   </div>
@@ -418,9 +453,7 @@ export default function DonorEligibilityForm() {
                       placeholder="Provide details about your illness"
                       value={formData.illnessDetails}
                       onChange={(e) => handleInputChange("illnessDetails", e.target.value)}
-                      className={`w-full min-h-[80px] px-3 py-2 border rounded-md ${
-                        errors.illnessDetails ? "border-red-500" : "border-input"
-                      }`}
+                      className={`w-full min-h-[80px] px-3 py-2 border rounded-md ${errors.illnessDetails ? "border-red-500" : "border-input"}`}
                     />
                     {errors.illnessDetails && <p className="mt-1 text-sm text-red-500">{errors.illnessDetails}</p>}
                   </div>
@@ -457,9 +490,7 @@ export default function DonorEligibilityForm() {
                       placeholder="List all medications and their dosages"
                       value={formData.medicationDetails}
                       onChange={(e) => handleInputChange("medicationDetails", e.target.value)}
-                      className={`w-full min-h-[80px] px-3 py-2 border rounded-md ${
-                        errors.medicationDetails ? "border-red-500" : "border-input"
-                      }`}
+                      className={`w-full min-h-[80px] px-3 py-2 border rounded-md ${errors.medicationDetails ? "border-red-500" : "border-input"}`}
                     />
                     {errors.medicationDetails && (
                       <p className="mt-1 text-sm text-red-500">{errors.medicationDetails}</p>
@@ -498,9 +529,7 @@ export default function DonorEligibilityForm() {
                       placeholder="List all chronic diseases you have"
                       value={formData.diseaseDetails}
                       onChange={(e) => handleInputChange("diseaseDetails", e.target.value)}
-                      className={`w-full min-h-[80px] px-3 py-2 border rounded-md ${
-                        errors.diseaseDetails ? "border-red-500" : "border-input"
-                      }`}
+                      className={`w-full min-h-[80px] px-3 py-2 border rounded-md ${errors.diseaseDetails ? "border-red-500" : "border-input"}`}
                     />
                     {errors.diseaseDetails && <p className="mt-1 text-sm text-red-500">{errors.diseaseDetails}</p>}
                   </div>
@@ -508,15 +537,14 @@ export default function DonorEligibilityForm() {
               </div>
             </div>
             <LocationPicker
-  onChange={(coords) => {
-    console.log("Selected location:", coords);
-    setFormData((prev) => ({
-      ...prev,
-      location: coords
-    }));
-  }}
-/>
-
+              onChange={(coords) => {
+                console.log("Selected location:", coords)
+                setFormData((prev) => ({
+                  ...prev,
+                  location: coords,
+                }))
+              }}
+            />
           </CardContent>
 
           <CardFooter>

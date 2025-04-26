@@ -16,7 +16,7 @@ import { useRouter } from "next/navigation"
 
 export default function RegisterPage() {
     const searchParams = useSearchParams()
-    const defaultType = searchParams.get("type") || "donor"
+    const defaultType = searchParams?.get("type") || "donor"
     const [userType, setUserType] = useState(defaultType)
     const router = useRouter()
 
