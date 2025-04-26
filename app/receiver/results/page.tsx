@@ -10,8 +10,7 @@ interface Donor {
   id: number;
   name: string;
   bloodType: string;
-  location: string;
-  distance: string;
+  location: { lat: number; lng: number };
   available: boolean;
 }
 
@@ -136,15 +135,15 @@ export default function SearchResultsPage() {
         <>
           <h2 className="text-xl font-semibold mb-4">Available Donors ({availableDonors.length})</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {availableDonors.map((donor) => (
-              <Card key={donor.id}>
+          {availableDonors.map((donor, index) => (
+  <Card key={donor.id || index}> 
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <CardTitle>{donor.name}</CardTitle>
                     <Badge className="bg-green-500">Available</Badge>
                   </div>
                   <CardDescription>
-                    {donor.location} • {donor.distance}
+                  <div>{donor.location?.lat}, {donor.location?.lng}</div>  
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pb-2">
@@ -152,6 +151,7 @@ export default function SearchResultsPage() {
                     <Droplet className="h-5 w-5 mr-2 text-red-500" />
                     <span className="font-medium">{donor.bloodType} blood type</span>
                   </div>
+                  <div>{donor.location?.lat}, {donor.location?.lng}</div>
                 </CardContent>
                 <CardFooter>
                   <Button variant="outline" className="w-full" onClick={() => handleViewDonor(donor.id)}>
@@ -184,7 +184,7 @@ export default function SearchResultsPage() {
                     <Badge className="bg-gray-400">Unavailable</Badge>
                   </div>
                   <CardDescription>
-                    {donor.location} • {donor.distance}
+                  <div>{donor.location?.lat}, {donor.location?.lng}</div> 
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pb-2">
@@ -192,6 +192,8 @@ export default function SearchResultsPage() {
                     <Droplet className="h-5 w-5 mr-2 text-red-500" />
                     <span className="font-medium">{donor.bloodType} blood type</span>
                   </div>
+                  <div>{donor.location?.lat}, {donor.location?.lng}</div>  {/* Render lat and lng separately */}
+
                 </CardContent>
                 <CardFooter>
                   <Button variant="outline" className="w-full" onClick={() => handleViewDonor(donor.id)}>
@@ -217,4 +219,3 @@ export default function SearchResultsPage() {
     </div>
   )
 }
-
