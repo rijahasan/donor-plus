@@ -54,8 +54,6 @@ import os
 from extensions import mongo, bcrypt  # Import extensions
 jwt = JWTManager()
 
-
-
 def create_app(config_name=None):
     """Application factory function."""
     app = Flask(__name__)
