@@ -3,23 +3,16 @@
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { ArrowLeft, Droplet } from "lucide-react"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 
 interface Donor {
-  _id: string;  // MongoDB ID
+  _id: string;
   firstName: string;
   lastName: string;
   bloodType: string;
-  location: { lat: number; lng: number };
+  location: { lat: number; lng: number } | null; // location can be null now
   available: boolean;
 }
 
@@ -114,6 +107,10 @@ export default function SearchResultsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
             {availableDonors.map((donor) => {
               const fullName = `${donor.firstName} ${donor.lastName}`
+
+              // Check if location exists before trying to access lat/lng
+              const location = donor.location ? `${donor.location.lat}, ${donor.location.lng}` : "Location not available";
+
               return (
                 <Card key={donor._id}>
                   <CardHeader className="pb-2">
@@ -121,7 +118,7 @@ export default function SearchResultsPage() {
                       <CardTitle>{fullName}</CardTitle>
                       <Badge className="bg-green-500">Available</Badge>
                     </div>
-                    <CardDescription>{donor.location.lat}, {donor.location.lng}</CardDescription>
+                    <CardDescription>{location}</CardDescription>  {/* Display location safely */}
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center mb-2">
@@ -156,6 +153,10 @@ export default function SearchResultsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {unavailableDonors.map((donor) => {
               const fullName = `${donor.firstName} ${donor.lastName}`
+
+              // Check if location exists before trying to access lat/lng
+              const location = donor.location ? `${donor.location.lat}, ${donor.location.lng}` : "Location not available";
+
               return (
                 <Card key={donor._id} className="opacity-70">
                   <CardHeader className="pb-2">
@@ -163,7 +164,7 @@ export default function SearchResultsPage() {
                       <CardTitle>{fullName}</CardTitle>
                       <Badge className="bg-gray-400">Unavailable</Badge>
                     </div>
-                    <CardDescription>{donor.location.lat}, {donor.location.lng}</CardDescription>
+                    <CardDescription>{location}</CardDescription>  {/* Display location safely */}
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center mb-2">
