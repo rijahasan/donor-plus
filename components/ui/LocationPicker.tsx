@@ -1,3 +1,4 @@
+// LocationPicker.tsx
 // 'use client'
 
 // import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet'
@@ -62,6 +63,7 @@ function LocationMarker({ setCoords }: { setCoords: (coords: { lat: number, lng:
     click(e) {
       setPosition(e.latlng)
       setCoords(e.latlng) // Send the coordinates back to parent component
+      setCoords(e.latlng) // Send the coordinates back to parent component
     },
   })
 
@@ -76,6 +78,7 @@ export default function LocationPicker({ onChange }: { onChange: (coords: { lat:
           attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+        <LocationMarker setCoords={onChange} /> {/* Trigger onChange to update parent */}
         <LocationMarker setCoords={onChange} /> {/* Trigger onChange to update parent */}
       </MapContainer>
     </div>
