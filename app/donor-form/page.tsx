@@ -24,34 +24,36 @@ export default function DonorEligibilityForm() {
   const bloodType = searchParams?.get("bloodType") || ""
   // const usertype = searchParams?.get("age") || ""
   const available = searchParams?.get("available") || ""
+  const notifiedby: never[] = []
 
   const [formData, setFormData] = useState<{
-    firstName: string
-    lastName: string
-    email: string
-    password: string
-    phone: string
-    bloodType: string
-    age: string
-    weight: string
-    recentSurgery: string
-    surgeryDetails: string
-    recentIllness: string
-    illnessDetails: string
-    onMedication: string
-    medicationDetails: string
-    chronicDisease: string
-    diseaseDetails: string
-    lastDonation: string
-    location: { lat: number | null; lng: number | null }
-    available: string
+    firstName: string;
+    lastName: string;
+    email: string;
+    password: string;
+    phone: string;
+    bloodType: string;
+    age: string;
+    weight: string;
+    recentSurgery: string;
+    surgeryDetails: string;
+    recentIllness: string;
+    illnessDetails: string;
+    onMedication: string;
+    medicationDetails: string;
+    chronicDisease: string;
+    diseaseDetails: string;
+    lastDonation: string;
+    location: { lat: number | null; lng: number | null };
+    available: string;
+    notifiedby: { email: string; message: string }[]; // or [] if it's empty initially
   }>({
-    firstName: firstName,
-    lastName: lastName,
-    email: email,
-    password: password,
-    phone: phone,
-    bloodType: bloodType,
+    firstName: firstName || "", // You can default to an empty string if no value is passed
+    lastName: lastName || "",
+    email: email || "",
+    password: password || "",
+    phone: phone || "",
+    bloodType: bloodType || "",
     age: "",
     weight: "",
     recentSurgery: "no",
@@ -64,8 +66,10 @@ export default function DonorEligibilityForm() {
     diseaseDetails: "",
     lastDonation: "",
     location: { lat: null, lng: null },
-    available: available,
-  })
+    available: available || "no", // Default to "no" if `available` is not provided
+    notifiedby: [], // Initializing as an empty array or could be dynamic based on your data
+  });
+
 
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
 

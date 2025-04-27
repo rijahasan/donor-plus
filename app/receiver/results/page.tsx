@@ -12,8 +12,10 @@ interface Donor {
   firstName: string;
   lastName: string;
   bloodType: string;
+  email: string
   location: { lat: number; lng: number } | null; // location can be null now
   available: boolean;
+  distance: any
 }
 
 // Blood compatibility logic
@@ -39,8 +41,11 @@ export default function SearchResultsPage() {
   const [loading, setLoading] = useState(true)
   const [receiverLocation, setReceiverLocation] = useState<{ lat: number; lng: number } | null>(null);
 
-
+  const receiver_email = searchParams?.get("receiver_email") || ""
   const receiverBloodType = searchParams?.get("bloodType") || ""
+  const lat = searchParams?.get("lat") || ""
+  const lng = searchParams?.get("lng") || ""
+  const radius = searchParams?.get("radius") || ""
 
   useEffect(() => {
     if (!receiverBloodType) return
@@ -48,7 +53,8 @@ export default function SearchResultsPage() {
     const fetchDonors = async () => {
       try {
         const encoded = encodeURIComponent(receiverBloodType)
-        const res = await fetch(`/api/donors?bloodType=${encoded}`)
+        // &lat=${coords.lat}&lng=${coords.lng}`)
+        const res = await fetch(`/api/donors?bloodType=${encodeURIComponent(receiverBloodType)}&lat=${lat}&lng=${lng}&radius=${radius}`)
         const data = await res.json()
         console.log("✅ Fetched donors:", data) // Debug log
         setDonors(data)
@@ -67,10 +73,16 @@ export default function SearchResultsPage() {
   const availableDonors = compatibleDonors.filter((donor) => donor.available)
   const unavailableDonors = compatibleDonors.filter((donor) => !donor.available)
 
-  const handleViewDonor = (id: string) => {
-    console.log("🔍 Navigating to donor:", id)
-    router.push(`/receiver/donor/${id}`)
-  }
+  const handleViewDonor = (email: string, distance: any) => {
+    // e.preventDefault()
+    try {
+      console.log("🔍 Viewing donor with email:", email);  // Check email value here
+      router.push(`/receiver/donors?receiver_email=${encodeURIComponent(receiver_email)}&email=${encodeURIComponent(email)}`);
+    } catch (error) {
+      console.error("❌ Error fetching donor:", error);
+    }
+  };
+
 
   const handleGoBack = () => {
     router.push("/receiver")
@@ -111,7 +123,7 @@ export default function SearchResultsPage() {
               const fullName = `${donor.firstName} ${donor.lastName}`
 
               // Check if location exists before trying to access lat/lng
-              const location = donor.location ? `${donor.location.lat}, ${donor.location.lng}` : "Location not available";
+              // const location = donor.location ? `${donor.location.lat}, ${donor.location.lng}` : "Location not available";
 
               return (
                 <Card key={donor._id}>
@@ -120,20 +132,31 @@ export default function SearchResultsPage() {
                       <CardTitle>{fullName}</CardTitle>
                       <Badge className="bg-green-500">Available</Badge>
                     </div>
-                    <CardDescription>{location}</CardDescription>  {/* Display location safely */}
+                    {/* <CardDescription>{location}</CardDescription>  Display location safely */}
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center mb-2">
                       <Droplet className="h-5 w-5 mr-2 text-red-500" />
                       <span className="font-medium">{donor.bloodType} blood type</span>
                     </div>
+                    {/* Display donor distance here */}
+                    {donor.distance && (
+                      <div className="flex items-center">
+                        <span className="font-medium text-gray-600">Distance: {donor.distance.value} {donor.distance.unit}</span>
+                      </div>
+                    )}
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" className="w-full" onClick={() => handleViewDonor(donor._id)}>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => donor.email && handleViewDonor(donor.email, donor.distance)}
+                    >
                       View Donor Profile
                     </Button>
                   </CardFooter>
                 </Card>
+
               )
             })}
           </div>
@@ -149,7 +172,7 @@ export default function SearchResultsPage() {
         </div>
       )}
 
-      {unavailableDonors.length > 0 && (
+      {/* {unavailableDonors.length > 0 && (
         <>
           <h2 className="text-xl font-semibold mb-4">Unavailable Donors ({unavailableDonors.length})</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -157,7 +180,7 @@ export default function SearchResultsPage() {
               const fullName = `${donor.firstName} ${donor.lastName}`
 
               // Check if location exists before trying to access lat/lng
-              const location = donor.location ? `${donor.location.lat}, ${donor.location.lng}` : "Location not available";
+              // const location = donor.location ? `${donor.location.lat}, ${donor.location.lng}` : "Location not available";
 
               return (
                 <Card key={donor._id} className="opacity-70">
@@ -167,7 +190,7 @@ export default function SearchResultsPage() {
                       <Badge className="bg-gray-400">Unavailable</Badge>
                     </div>
                     <CardDescription>{location}</CardDescription>  {/* Display location safely */}
-                  </CardHeader>
+      {/* </CardHeader>
                   <CardContent>
                     <div className="flex items-center mb-2">
                       <Droplet className="h-5 w-5 mr-2 text-red-500" />
@@ -175,27 +198,32 @@ export default function SearchResultsPage() {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button variant="outline" className="w-full" onClick={() => handleViewDonor(donor._id)}>
+                    <Button variant="outline" className="w-full" onClick={() => donor.email && handleViewDonor(donor.email)}
+                    >
                       View Donor Profile
                     </Button>
                   </CardFooter>
-                </Card>
+                </Card >
               )
-            })}
-          </div>
-        </>
-      )}
+})}      </div >
+      //   </>
+      // )
 
-      {compatibleDonors.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-lg text-muted-foreground">
-            No compatible donors found for {receiverBloodType} blood type.
-          </p>
-          <Button onClick={handleGoBack} className="mt-4">
-            Back to Search
-          </Button>
-        </div>
-      )}
-    </div>
+      // } */}
+
+
+      {
+        compatibleDonors.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-lg text-muted-foreground">
+              No compatible donors found for {receiverBloodType} blood type.
+            </p>
+            <Button onClick={handleGoBack} className="mt-4">
+              Back to Search
+            </Button>
+          </div>
+        )
+      }
+    </div >
   )
 }

@@ -18,7 +18,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(200).json(users);
     }
 
-    if (req.method === 'POST') {
+    else if (req.method === 'POST') {
       const { firstName, lastName, email, password, phone, bloodType, userType, available, urgency } = req.body;
 
       // Validation (basic example)
@@ -27,33 +27,40 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
 
       // Check if the email already exists
-      const existingUser = await collection.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ message: "Email is already registered" });
+      try {
+        const existingUser = await collection.findOne({ email });
+        if (existingUser) {
+          return res.status(400).json({ message: "Email is already registered" });
+        }
+      }
+      finally {
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create the new user object
+        const newUser = {
+          firstName,
+          lastName,
+          email,
+          password: hashedPassword,
+          phone,
+          bloodType,
+          userType, // Donor or Receiver
+          available: userType === "donor" ? (available === "yes" ? 1 : 0) : null, // Send 1 or 0 for donor availability
+          urgency: userType === "receiver" ? (urgency === "urgent" ? 1 : 0) : null, // Send 1 or 0 for urgency
+        };
+
+        // Insert the new user into the database
+        const result = await collection.insertOne(newUser);
+        return res.status(201).json(result);
       }
 
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Create the new user object
-      const newUser = {
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        phone,
-        bloodType,
-        userType, // Donor or Receiver
-        available: userType === "donor" ? (available === "yes" ? 1 : 0) : null, // Send 1 or 0 for donor availability
-        urgency: userType === "receiver" ? (urgency === "urgent" ? 1 : 0) : null, // Send 1 or 0 for urgency
-      };
-
-      // Insert the new user into the database
-      const result = await collection.insertOne(newUser);
-      return res.status(201).json(result);
     }
+    else {
+      res.status(405).json({ message: 'Method Not Allowed' });
 
-    res.status(405).json({ message: 'Method Not Allowed' });
+    }
+    // Hash the password
   } catch (error: any) {
     console.error('❌ MongoDB error:', error);
     res.status(500).json({ message: 'Internal Server Error', error: error?.message || 'Unknown error' });

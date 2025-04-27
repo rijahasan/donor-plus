@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const db = client.db("donor-app");
     const donor = await db
       .collection("donors")
-      .findOne({ _id: new ObjectId(id as string) });
+      .findOne({ id: { id } });
 
     if (!donor) {
       return res.status(404).json({ message: "Donor not found" });

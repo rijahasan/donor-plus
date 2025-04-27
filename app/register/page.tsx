@@ -47,7 +47,135 @@ export default function RegisterPage() {
         })
     }
 
-    const validateForm = () => {
+    // const validateForm = (emailAlreadyRegistered = false) => {
+    //     let isValid = true
+    //     const newErrors = { ...errors }
+
+    //     // Validate first name
+    //     if (!formData.firstName) {
+    //         newErrors.firstName = "First Name is required"
+    //         isValid = false
+    //     } else {
+    //         newErrors.firstName = ""
+    //     }
+
+    //     // Validate last name
+    //     if (!formData.lastName) {
+    //         newErrors.lastName = "Last Name is required"
+    //         isValid = false
+    //     } else {
+    //         newErrors.lastName = ""
+    //     }
+
+    //     const handleCreateAccount = async (e: React.FormEvent) => {
+    //         e.preventDefault();
+    //         let emailAlreadyRegistered = false;
+    //         // Validate form before submitting
+    //         if (validateForm(emailAlreadyRegistered = false)) {
+    //             // Construct the user data object from the form
+    //             const userData = {
+    //                 firstName: formData.firstName,
+    //                 lastName: formData.lastName,
+    //                 email: formData.email,
+    //                 password: formData.password,
+    //                 phone: formData.phone,
+    //                 bloodType: formData.bloodType,
+    //                 userType: userType, // Donor or Receiver
+    //                 available: formData.available === "yes" ? 1 : 0, // Send yes/no for donor availability
+    //                 urgency: formData.urgency === "urgent" ? 1 : 0, // Send urgent/normal for receiver urgency
+    //             };
+
+
+    //             // only save directly if receiver
+    //             if (userType === 'receiver') {
+    //                 try {
+    //                     // Send the user data to the backend to store in the database
+    //                     const response = await fetch('/api/users', {
+    //                         method: 'POST',
+    //                         headers: {
+    //                             'Content-Type': 'application/json',
+    //                         },
+    //                         body: JSON.stringify(userData),
+    //                     });
+
+    //                     const data = await response.json(); // Always parse JSON once
+
+    //                     if (response.ok) {
+    //                         // const result = await response.json();
+    //                         console.log('Account created successfully:', data);
+    //                         // not adding to donor just yet !
+    //                         // // Redirect to the appropriate page
+    //                         // if (userType === "donor") {
+    //                         //     router.push("/donor-form");
+    //                         // } else {
+    //                         //     router.push("/login");
+    //                         // }
+    //                     } else {
+    //                         if (data.message?.includes("Email is already registered")) {
+    //                             emailAlreadyRegistered = true;
+    //                             validateForm(emailAlreadyRegistered); // Re-run validation to show email error
+    //                         } else {
+    //                             console.error('Unexpected error creating account:', data.message);
+    //                             emailAlreadyRegistered = false;
+    //                             validateForm(emailAlreadyRegistered); // Re-run validation to show email error
+    //                             // You can also show a generic toast/error UI here if you want
+    //                         }
+    //                     }
+    //                 } catch (error) {
+    //                     console.error('Network or unexpected error during registration:', error);
+    //                     // Handle true network errors or unexpected crashes
+    //                 }
+    //             } else {
+    //                 console.log("Form validation failed");
+    //                 // Optionally show form validation errors in the UI
+    //             }
+    //         };
+
+
+
+    //         // Validate email
+    //         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    //         if (!formData.email || !emailRegex.test(formData.email)) {
+    //             newErrors.email = "Please enter a valid email address"
+    //             isValid = false
+    //         } else if (emailAlreadyRegistered) {
+    //             newErrors.email = "Email is already registered"
+    //             isValid = false
+    //         } else {
+    //             newErrors.email = ""
+    //         }
+
+    //         // Validate password
+    //         if (!formData.password || formData.password.length < 8) {
+    //             newErrors.password = "Password must be at least 8 characters long"
+    //             isValid = false
+    //         } else {
+    //             newErrors.password = ""
+    //         }
+
+    //         // Validate phone number
+    //         const phoneRegex = /^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s./0-9]*$/
+    //         if (!formData.phone || !phoneRegex.test(formData.phone)) {
+    //             newErrors.phone = "Please enter a valid phone number"
+    //             isValid = false
+    //         } else {
+    //             newErrors.phone = ""
+    //         }
+
+    //         // Validate blood type
+    //         if (!formData.bloodType) {
+    //             newErrors.bloodType = "Blood Type is required"
+    //             isValid = false
+    //         } else {
+    //             newErrors.bloodType = ""
+    //         }
+
+    //         setErrors(newErrors)
+    //         return isValid
+    //     }
+
+
+    const validateForm = (emailAlreadyRegistered = false) => {
         let isValid = true
         const newErrors = { ...errors }
 
@@ -71,6 +199,9 @@ export default function RegisterPage() {
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
         if (!formData.email || !emailRegex.test(formData.email)) {
             newErrors.email = "Please enter a valid email address"
+            isValid = false
+        } else if (emailAlreadyRegistered) {
+            newErrors.email = "Email is already registered"
             isValid = false
         } else {
             newErrors.email = ""
@@ -107,6 +238,7 @@ export default function RegisterPage() {
 
     const handleCreateAccount = async (e: React.FormEvent) => {
         e.preventDefault();
+        let emailAlreadyRegistered = false;
 
         // Validate form before submitting
         if (validateForm()) {
@@ -122,11 +254,10 @@ export default function RegisterPage() {
                 available: formData.available === "yes" ? 1 : 0, // Send yes/no for donor availability
                 urgency: formData.urgency === "urgent" ? 1 : 0, // Send urgent/normal for receiver urgency
             };
-
-
-            // only save directly if receiver
             if (userType === 'receiver') {
+
                 try {
+                    // Send the user data to the backend to store in the database
                     const response = await fetch('/api/users', {
                         method: 'POST',
                         headers: {
@@ -135,33 +266,44 @@ export default function RegisterPage() {
                         body: JSON.stringify(userData),
                     });
 
-                    // Check if the response was successful
+                    const data = await response.json(); // Always parse JSON once
+
                     if (response.ok) {
-                        const result = await response.json();
-                        console.log('Account created successfully:', result);
+                        // const result = await response.json();
+                        console.log('Account created successfully:', data);
+                        router.push("/login");
+                        // // Redirect to the appropriate page
+                        // if (userType === "donor") {
+                        //     router.push("/donor-form");
+                        // } else {
+                        //     router.push("/login");
+                        // }
+                    } else {
+                        if (data.message?.includes("Email is already registered")) {
+                            emailAlreadyRegistered = true;
+                            validateForm(emailAlreadyRegistered); // Re-run validation to show email error
+                        } else {
+                            console.error('Unexpected error creating account:', data.message);
+                            emailAlreadyRegistered = false;
+                            validateForm(emailAlreadyRegistered); // Re-run validation to show email error
+                            // You can also show a generic toast/error UI here if you want
+                        }
                     }
                 } catch (error) {
-                    console.error('Error during registration:', error);
-
-                    // Handle network or other errors
+                    console.error('Network or unexpected error during registration:', error);
+                    // Handle true network errors or unexpected crashes
                 }
-
             }
-            // else if donor then pass info to donor form
-            // Redirect to the receiver page (or a success page)
-            if (userType === "donor") {
+            else {
+
                 const query = new URLSearchParams(formData as Record<string, string>).toString();
                 router.push(`/donor-form?${query}`);
 
+                // Handle network or other errors
+
             }
-            // Handle network or other errors
-
-        } else {
-            console.log("Form validation failed");
-            // Optionally, you can display a message on the UI if validation fails
         }
-    };
-
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">

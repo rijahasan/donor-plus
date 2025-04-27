@@ -491,6 +491,51 @@ export default function DashboardPage() {
     "o_negative": "O-",
     "unknown": "I don't know",
   };
+  const [notifications, setNotifications] = useState([]);
+
+  useEffect(() => {
+    async function fetchNotifications() {
+      try {
+        const res = await fetch(`/api/notifications?email=${donor.email}`);
+        const data = await res.json();
+        console.log("Fetched notifications:", data.notifications); // Check data here
+        setNotifications(data.notifications);
+      } catch (error) {
+        console.error("Failed to fetch notifications:", error);
+      }
+    }
+
+    if (donor?.email) {
+      fetchNotifications();
+    }
+  }, [donor?.email]);
+  // {
+  //   notifications.length > 0 ? (
+  //     <div className="space-y-4">
+  //       {notifications.map((notif: any, index: number) => (
+  //         <div key={index} className="flex items-center justify-between border-b pb-4">
+  //           <div>
+  //             <h4 className="font-medium">{notif.firstName} {notif.lastName}</h4>
+  //             <p className="text-sm text-gray-500">{notif.email}</p>
+  //             <Badge variant="outline" className="mt-1">{notif.bloodType}</Badge>
+  //           </div>
+  //           <Button
+  //             size="sm"
+  //             variant="default"
+  //             onClick={() => handleAcceptRequest(notif.email, notif.bloodType)}
+  //           >
+  //             Accept Request
+  //           </Button>
+  //         </div>
+  //       ))}
+  //     </div>
+  //   ) : (
+  //   <div className="text-center py-6">
+  //     <p className="text-gray-500">No current requests.</p>
+  //   </div>
+  // )
+  // }
+
 
   useEffect(() => {
     const fetchDonorInfo = async () => {
@@ -644,6 +689,31 @@ export default function DashboardPage() {
       });
     } finally {
       setIsUpdating(false)
+    }
+  }
+  async function handleAcceptRequest(receiverEmail: string, bloodType: string) {
+    try {
+      const res = await fetch("/api/match", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          donorEmail: donor.email,
+          receiverEmail,
+          bloodType
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Match successfully recorded!");
+        // Optionally refresh notifications
+      } else {
+        console.error("Failed to match:", data.message);
+        alert(data.message || "Failed to match");
+      }
+    } catch (error) {
+      console.error("Error accepting request:", error);
+      alert("Something went wrong");
     }
   }
 
@@ -1013,6 +1083,44 @@ export default function DashboardPage() {
                 )}
               </CardContent>
             </Card>
+            {/* Requests from Recipients */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle>Requests</CardTitle>
+                <CardDescription>People who notified you for help</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {notifications?.length > 0 ? (
+                  <div className="space-y-4">
+                    {notifications.map((notif: any, index: number) => (
+                      <div key={index} className="flex items-center justify-between border-b pb-4">
+                        <div>
+                          {/* Full name */}
+                          <h4 className="font-medium">{notif.firstName} {notif.lastName}</h4>
+                          {/* Email */}
+                          <p className="text-sm text-gray-500">{notif.email}</p>
+                          {/* Blood type with badge */}
+                          <Badge variant="outline" className="mt-1">{notif.bloodType}</Badge>
+                        </div>
+                        {/* Accept request button */}
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => handleAcceptRequest(notif.email, notif.bloodType)}
+                        >
+                          Accept Request
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    <p className="text-gray-500">No current requests.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
 
             {/* Upcoming Appointments */}
             <Card>
