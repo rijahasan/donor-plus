@@ -83,10 +83,15 @@ export default function SearchResultsPage() {
     }
   };
 
-
   const handleGoBack = () => {
-    router.push("/receiver")
-  }
+    const receiverEmail = localStorage.getItem("email");
+    if (receiverEmail) {
+      router.push(`/receiver?email=${encodeURIComponent(receiverEmail)}`);
+    } else {
+      router.push("/receiver");
+    }
+  };
+
 
   if (!receiverBloodType) {
     return (

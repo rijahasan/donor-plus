@@ -1,5 +1,8 @@
 "use client"
 
+import dynamic from "next/dynamic";
+
+
 import type React from "react"
 
 import { useState } from "react"
@@ -10,7 +13,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { ArrowLeft } from "lucide-react"
-import LocationPicker from "@/components/ui/LocationPicker"
+// Dynamically import LocationPicker with SSR disabled
+const LocationPicker = dynamic(() => import('@/components/ui/LocationPicker'), { ssr: false });
 
 export default function DonorEligibilityForm() {
   const router = useRouter()
@@ -190,14 +194,13 @@ export default function DonorEligibilityForm() {
       try {
         // First API call to /api/users with searchParams data
         const takenuserData = {
-
-          firstName,
-          lastName,
-          email,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
           password,
           phone,
-          bloodType,
-          available: available === "yes" ? "yes" : "no",
+          bloodType: formData.bloodType,
+          available: formData.available === "yes" ? "yes" : "no",
           urgency: "",
           userType: "donor"
         }
@@ -211,7 +214,20 @@ export default function DonorEligibilityForm() {
         })
 
         if (!userResponse.ok) {
-          throw new Error("Failed to submit user data")
+          try {
+            const resdata = await userResponse.json(); // Always parse JSON once
+            if (resdata.message?.includes("Email is already registered")) {
+              setErrors((prev) => ({
+                ...prev,
+                email: "This email is already registered. Please use a different one."
+              }));
+              return;
+            }
+          } catch (error) {
+            console.error('Network or unexpected error during registration:', error);
+            // Handle true network errors or unexpected crashes
+          }
+          // throw new Error("Failed to submit user data")
         }
 
         // Second API call to /api/donors with all form data

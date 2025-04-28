@@ -389,6 +389,8 @@ export default function DonorProfilePage() {
   const [message, setMessage] = useState("")
   const [donor, setDonor] = useState<Donor | null>(null)
   const [loading, setLoading] = useState(true)
+  const today = new Date().toISOString();
+
 
   useEffect(() => {
     const fetchDonor = async () => {
@@ -432,6 +434,7 @@ export default function DonorProfilePage() {
           donorEmail: donor.email,
           receiverEmail: receiver_email,  // Replace with actual receiver email
           message,
+          date: today,
         }),
       })
 
@@ -614,11 +617,16 @@ export default function DonorProfilePage() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                  <AvatarFallback className="text-lg">
-                    {donor.firstName[0]}{donor.lastName[0]}
+                <Avatar className="h-20 w-20 rounded-full bg-gray-400 flex items-center justify-center">
+                  <AvatarFallback className="text-xl text-white bg-mr-3">
+                    {donor?.firstName?.[0]?.toUpperCase() ?? ''}
+                    {donor?.lastName?.[0]?.toUpperCase() ?? ''}
                   </AvatarFallback>
                 </Avatar>
+
+
+
+
                 <div>
                   <CardTitle className="text-2xl">{donor.firstName} {donor.lastName}</CardTitle>
                   <CardDescription className="flex items-center mt-1">
@@ -661,65 +669,64 @@ export default function DonorProfilePage() {
 
 
               <div>
-                <h3 className="text-lg font-semibold mb-3">Medical Information</h3>
-                <div className="space-y-2">
+                <h3 className="text-lg font-semibold mb-4">Medical Information</h3>
+                <div className="space-y-3">
                   {donor.recentSurgery && (
-                    <div className="flex items-center">
-                      <span className="font-medium">Recent Surgery: </span>
+                    <div className="flex items-start space-x-2">
+                      <span className="font-medium w-48">Recent Surgery:</span>
                       <span>{donor.recentSurgery}</span>
                     </div>
                   )}
                   {donor.surgeryDetails && (
-                    <div className="flex items-center">
-                      <span className="font-medium">Surgery Details:</span>
+                    <div className="flex items-start space-x-2">
+                      <span className="font-medium w-48">Surgery Details:</span>
                       <span>{donor.surgeryDetails}</span>
                     </div>
                   )}
                   {donor.recentIllness && (
-                    <div className="flex items-center">
-                      <span className="font-medium">Recent Illness:</span>
+                    <div className="flex items-start space-x-2">
+                      <span className="font-medium w-48">Recent Illness:</span>
                       <span>{donor.recentIllness}</span>
                     </div>
                   )}
                   {donor.illnessDetails && (
-                    <div className="flex items-center">
-                      <span className="font-medium">Illness Details:</span>
+                    <div className="flex items-start space-x-2">
+                      <span className="font-medium w-48">Illness Details:</span>
                       <span>{donor.illnessDetails}</span>
                     </div>
                   )}
                   {donor.onMedication && (
-                    <div className="flex items-center">
-                      <span className="font-medium">On Medication:</span>
+                    <div className="flex items-start space-x-2">
+                      <span className="font-medium w-48">On Medication:</span>
                       <span>{donor.onMedication}</span>
                     </div>
                   )}
                   {donor.medicationDetails && (
-                    <div className="flex items-center">
-                      <span className="font-medium">Medication Details:</span>
+                    <div className="flex items-start space-x-2">
+                      <span className="font-medium w-48">Medication Details:</span>
                       <span>{donor.medicationDetails}</span>
                     </div>
                   )}
                   {donor.chronicDisease && (
-                    <div className="flex items-center">
-                      <span className="font-medium">Chronic Disease:</span>
+                    <div className="flex items-start space-x-2">
+                      <span className="font-medium w-48">Chronic Disease:</span>
                       <span>{donor.chronicDisease}</span>
                     </div>
                   )}
                   {donor.diseaseDetails && (
-                    <div className="flex items-center">
-                      <span className="font-medium">Disease Details:</span>
+                    <div className="flex items-start space-x-2">
+                      <span className="font-medium w-48">Disease Details:</span>
                       <span>{donor.diseaseDetails}</span>
                     </div>
                   )}
                   {donor.lastDonation && (
-                    <div className="flex items-center">
-                      <span className="font-medium">Last Donation:</span>
+                    <div className="flex items-start space-x-2">
+                      <span className="font-medium w-48">Last Donation:</span>
                       <span>{new Date(donor.lastDonation).toLocaleDateString()}</span>
                     </div>
                   )}
                 </div>
               </div>
-
               <div>
                 <h3 className="text-lg font-semibold mb-3">Contact Information</h3>
                 <div className="space-y-2">
@@ -729,8 +736,9 @@ export default function DonorProfilePage() {
                       <span>{donor.email}</span>
                     </div>
                   )}
-                  Contant {donor.firstName} through their email right away
-
+                  <span className="text-sm text-gray-500">
+                    Contact {donor.firstName} through their email right away!
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -740,12 +748,12 @@ export default function DonorProfilePage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Send request & a note</CardTitle>
+              <CardTitle>Please send details with request to ensure availability</CardTitle>
               <CardDescription>If {donor.firstName} is available, you will receive their phone number soon!</CardDescription>
             </CardHeader>
             <CardContent>
               <Textarea
-                placeholder="Add a message if you would like!"
+                placeholder="Add your details for prompt response."
                 className="min-h-[120px]"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -763,6 +771,6 @@ export default function DonorProfilePage() {
           </Card>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

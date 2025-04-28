@@ -272,6 +272,7 @@ export default function RegisterPage() {
                         // const result = await response.json();
                         console.log('Account created successfully:', data);
                         router.push("/login");
+                        // router.push(`/receiver?email=${data.email}`)
                         // // Redirect to the appropriate page
                         // if (userType === "donor") {
                         //     router.push("/donor-form");
@@ -297,6 +298,7 @@ export default function RegisterPage() {
             else {
 
                 const query = new URLSearchParams(formData as Record<string, string>).toString();
+                validateForm
                 router.push(`/donor-form?${query}`);
 
                 // Handle network or other errors
@@ -427,7 +429,7 @@ export default function RegisterPage() {
 
                                     {/* Dynamic sections for donor or receiver */}
                                     {userType === "donor" && (
-                                        <div className="space-y-2">
+                                        <div className="space-y-4"> {/* Add some space between this section and the elements above */}
                                             <Label>Are you available to donate now?</Label>
                                             <RadioGroup
                                                 value={formData.available}
@@ -435,37 +437,47 @@ export default function RegisterPage() {
                                                     setFormData({ ...formData, available: value });
                                                     console.log("Updated available:", value); // Log the updated value here
                                                 }}
-                                                className="flex gap-4">
+                                                className="flex gap-6"> {/* Increase gap between radio items */}
                                                 <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="yes" id="available-yes" />
-                                                    <Label htmlFor="available-yes">Yes</Label>
+                                                    <RadioGroupItem value="yes" id="available-yes" className="h-6 w-6" /> {/* Adjust size of radio button */}
+                                                    <Label htmlFor="available-yes" className="cursor-pointer">Yes</Label>
                                                 </div>
                                                 <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="no" id="available-no" />
-                                                    <Label htmlFor="available-no">No</Label>
+                                                    <RadioGroupItem value="no" id="available-no" className="h-6 w-6" /> {/* Adjust size of radio button */}
+                                                    <Label htmlFor="available-no" className="cursor-pointer">No</Label>
                                                 </div>
                                             </RadioGroup>
                                         </div>
                                     )}
+
 
                                     {userType === "receiver" && (
-                                        <div className="space-y-2">
+                                        <div className="space-y-4"> {/* Increase vertical spacing between this and previous sections */}
                                             <Label>Urgency Level</Label>
-                                            <RadioGroup defaultValue="normal" className="flex gap-4">
+                                            <RadioGroup defaultValue="normal" className="flex gap-6"> {/* Increase the gap between radio items */}
                                                 <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="urgent" id="urgency-urgent" />
-                                                    <Label htmlFor="urgency-urgent">Urgent</Label>
+                                                    <RadioGroupItem
+                                                        value="urgent"
+                                                        id="urgency-urgent"
+                                                        className="h-6 w-6" // Adjust size of the radio button for better interaction
+                                                    />
+                                                    <Label htmlFor="urgency-urgent" className="cursor-pointer">Urgent</Label>
                                                 </div>
                                                 <div className="flex items-center space-x-2">
-                                                    <RadioGroupItem value="normal" id="urgency-normal" />
-                                                    <Label htmlFor="urgency-normal">Normal</Label>
+                                                    <RadioGroupItem
+                                                        value="normal"
+                                                        id="urgency-normal"
+                                                        className="h-6 w-6" // Adjust size of the radio button for better interaction
+                                                    />
+                                                    <Label htmlFor="urgency-normal" className="cursor-pointer">Normal</Label>
                                                 </div>
                                             </RadioGroup>
                                         </div>
                                     )}
+
                                 </div>
 
-                                <CardFooter>
+                                <CardFooter className="mt-4">  {/* mt-4 adds margin-top */}
                                     <Button type="submit" className="w-full bg-red-600 hover:bg-red-700">
                                         Create Account
                                     </Button>

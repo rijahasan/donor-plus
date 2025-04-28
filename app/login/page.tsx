@@ -240,6 +240,8 @@ export default function LoginPage() {
                     setIsLoading(false)
                 }
             } else if (loginData.userType === "receiver") {
+                localStorage.setItem("email", loginData.email)
+
                 router.push(`/receiver?email=${loginData.email}`)
             } else {
                 setError("Unknown account type")

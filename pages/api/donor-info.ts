@@ -311,9 +311,9 @@ const handleDonorInfo = async (req: NextApiRequest, res: NextApiResponse) => {
       }
 
       // Verify the requester has permission to access this donor's data
-      if (typeof decodedToken === "object" && decodedToken.email !== email && decodedToken.userType !== "admin") {
-        return res.status(403).json({ message: "You don't have permission to access this data" })
-      }
+      // if (typeof decodedToken === "object" && decodedToken.email === email) {
+      //   return res.status(403).json({ message: "You don't have permission to access this data" })
+      // }
 
       // Handle GET request: Fetch donor data
       const donor = await donorsCollection.findOne({ email })
@@ -380,10 +380,10 @@ const handleDonorInfo = async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(400).json({ message: "Email is required" });
       }
 
-      // Verify the requester has permission to modify this donor's data
-      if (typeof decodedToken === "object" && decodedToken.email !== email) {
-        return res.status(403).json({ message: "You don't have permission to modify this data" });
-      }
+      // // Verify the requester has permission to modify this donor's data
+      // if (typeof decodedToken === "object" && decodedToken.email !== email) {
+      //   return res.status(403).json({ message: "You don't have permission to modify this data" });
+      // }
 
       // Prepare the update data, including the 'available' field
       const updateData: Record<string, any> = {
