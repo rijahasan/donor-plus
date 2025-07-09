@@ -1,5 +1,3 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 ## Getting Started
 
 First, run the development server:
@@ -10,10 +8,28 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Then, run the backend server:
+# Donor+ Application Overview
 
-```bash
-python app.py
-```
+Donor+ is a cross-platform mobile application designed to connect blood donors and recipients in real-time based on blood type, preference, and geographic proximity. It simplifies the donation process and enables timely access to critical help.
 
-This will enable all the API calls to MongoDB Atlas used for authentication and database storage.
+
+---
+
+## Tech Stack
+
+- **Frontend (Mobile)**: React Native (iOS + Android)
+- **Backend**: Next.js (API Routes)
+- **Database**: MongoDB Atlas
+- **Location Services**: OpenStreetMap (OSM API)
+- **Containerization**: Docker
+- **Deployment**: AWS (ECR + ECS)
+
+---
+
+## System Architecture
+
+```text
+[Mobile App (React Native)] ⇄ [Backend API (Next.js)] ⇄ [MongoDB Atlas]
+             |
+             v
+        [OSM API]
