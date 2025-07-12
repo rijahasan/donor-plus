@@ -398,43 +398,6 @@ export default function DashboardPage() {
     }
   }
 
-  // async function handleMarkAsDone(appointmentId: String) {
-  //   try {
-  //     const token = localStorage.getItem("authToken")
-  //     const apt = {
-  //       appointmentId: appointmentId,
-  //       donorEmail: donor.email,
-  //       status: "Completed",
-  //     }
-  //     const res = await fetch("/api/appointments/complete", {
-  //       method: "PATCH",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${token}`
-  //       },
-  //       body: JSON.stringify(apt),
-  //     })
-  //     if (res.ok) {
-  //       toast.success("Appointment marked as completed!");
-  //       console.log("✅ Receiver notified successfully");
-
-  //       // Corrected: Match using _id converted to string
-  //       setUpcomingAppointments((prevAppointments: any[]) =>
-  //         prevAppointments.map((apt: any) =>
-  //           apt._id.toString() === appointmentId
-  //             ? { ...apt, status: "Completed" }
-  //             : apt
-  //         )
-  //       );
-  //     } else {
-  //       const errorData = await res.json();
-  //       console.error("Failed to update appointment status:", errorData);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error completing appointment:",);
-  //     toast.error("Something went wrong");
-  //   }
-  // }
   async function handleMarkAsDone(appointmentId: string) {
     try {
       // Log the appointment ID for debugging
