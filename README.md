@@ -17,8 +17,8 @@ Donor+ is a cross-platform mobile application designed to connect blood donors a
 
 ## Tech Stack
 
-- **Frontend (Mobile)**: React Native (iOS + Android)
-- **Backend**: Next.js (API Routes)
+- **Frontend (Mobile)**: React (iOS + Android)
+- **Backend**: Next.js (API Routes), Typescript
 - **Database**: MongoDB Atlas
 - **Location Services**: OpenStreetMap (OSM API)
 - **Containerization**: Docker
