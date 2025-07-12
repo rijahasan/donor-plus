@@ -179,7 +179,10 @@ export default function DonorEligibilityForm() {
     if (!formData.available.trim()) {
       newErrors.available = "Please specify your availability"
     }
-
+    // Location validation
+    if (!formData.location.lng || !formData.location.lat) {
+      newErrors.location = "Please specify your location"
+    }
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }

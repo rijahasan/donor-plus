@@ -177,46 +177,6 @@ export default function SearchResultsPage() {
         </div>
       )}
 
-      {/* {unavailableDonors.length > 0 && (
-        <>
-          <h2 className="text-xl font-semibold mb-4">Unavailable Donors ({unavailableDonors.length})</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {unavailableDonors.map((donor) => {
-              const fullName = `${donor.firstName} ${donor.lastName}`
-
-              // Check if location exists before trying to access lat/lng
-              // const location = donor.location ? `${donor.location.lat}, ${donor.location.lng}` : "Location not available";
-
-              return (
-                <Card key={donor._id} className="opacity-70">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <CardTitle>{fullName}</CardTitle>
-                      <Badge className="bg-gray-400">Unavailable</Badge>
-                    </div>
-                    <CardDescription>{location}</CardDescription>  {/* Display location safely */}
-      {/* </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center mb-2">
-                      <Droplet className="h-5 w-5 mr-2 text-red-500" />
-                      <span className="font-medium">{donor.bloodType} blood type</span>
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button variant="outline" className="w-full" onClick={() => donor.email && handleViewDonor(donor.email)}
-                    >
-                      View Donor Profile
-                    </Button>
-                  </CardFooter>
-                </Card >
-              )
-})}      </div >
-      //   </>
-      // )
-
-      // } */}
-
-
       {
         compatibleDonors.length === 0 && (
           <div className="text-center py-12">
