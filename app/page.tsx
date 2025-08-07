@@ -97,7 +97,7 @@ export default function Home() {
                     <div>
                         <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
                         <p className="text-gray-300">Email: info@donorplus.com</p>
-                        <p className="text-gray-300">Phone: (021) 468-8496</p>
+                        <p className="text-gray-300">Phone: (021) 468-8955</p>
                     </div>
                 </div>
                 <div className="border-t border-gray-700 mt-8 pt-6 text-center text-gray-300">
