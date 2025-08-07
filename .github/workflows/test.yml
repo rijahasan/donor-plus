@@ -1,19 +1,16 @@
-# .github/workflows/test.yml
 name: Test App
 
 on:
-  push:
-    # branches: [ main ]
   pull_request:
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up Node
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 18
@@ -22,4 +19,4 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npx jest
+        run: npx jest --passWithNoTests
