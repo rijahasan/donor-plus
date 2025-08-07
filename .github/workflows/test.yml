@@ -1,5 +1,5 @@
 # .github/workflows/test.yml
-name: Test Next.js App
+name: Test App
 
 on:
   push:
