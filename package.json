@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "tailwind:init": "tailwindcss init -p"
+    "tailwind:init": "tailwindcss init -p",
+    "test": "jest"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.3",
